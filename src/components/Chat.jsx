@@ -128,12 +128,24 @@ const Chat = () => {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Faça sua pergunta sobre Angola..."
-                    className="flex-1 p-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-angola-red placeholder-gray-500"
+                    className="
+                        flex-1 p-3 border border-gray-300 rounded-full
+                        focus:outline-none focus:ring-2 focus:ring-angola-red
+                        placeholder-gray-500
+                    "
                     disabled={loading}
                 />
                 <button
                     onClick={handleSendMessage}
-                    className="ml-2 px-6 py-3 bg-secondary-brand text-white rounded-full hover:bg-red-700 transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="
+                        px-4 py-3 /* Padding padrão para telas pequenas: um pouco menor */
+                        md:px-6 md:py-3 /* Aumenta o padding em telas médias e maiores */
+                        ml-1 /* Margem menor para telas pequenas */
+                        md:ml-2 /* Margem normal para telas médias e maiores */
+                        bg-secondary-brand text-white rounded-full
+                        hover:bg-red-700 transition-colors
+                        shadow-md disabled:opacity-50 disabled:cursor-not-allowed
+                    "
                     disabled={loading}
                 >
                     Enviar

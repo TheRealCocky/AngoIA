@@ -37,7 +37,7 @@ Certifique-se de ter o Node.js e o npm instalados em seu sistema.
 
 1.  **Clone o repositório (se estiver em um):**
     ```bash
-    git clone <URL_DO_SEU_REPOSITORIO>
+    git clone <https://github.com/TheRealCocky/AngoIA>
     cd angoia
     ```
     Se você criou o projeto usando `npm create vite@latest angoia -- --template react`, você já estará na pasta `angoia` e pode pular o `git clone` e `cd angoia`.
