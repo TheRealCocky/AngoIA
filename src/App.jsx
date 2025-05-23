@@ -2,7 +2,7 @@
 import React from 'react';
 import Chat from './components/Chat'; //
 import './index.css'; //
-
+import { Analytics } from "@vercel/analytics/react"
 import samacacaImage from '../src/imagens/samacaca.webp'; //
 
 const App = () => {

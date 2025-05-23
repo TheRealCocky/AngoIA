@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 const callGeminiAPI = async (message) => {
 
     const API_KEY = 'AIzaSyBkiyAEQFlHLtzN9e76uy2G7qhWw0bLWwE'; // minha chave da api do gemini
-    // ATUALIZADO: Agora usando 'gemini-2.0-flash' e a URL conforme seu curl command
+    // ATUALIZADO: Agora usando 'gemini-2.0-flash' e a URL conforme o meu curl command
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
 
     try {
