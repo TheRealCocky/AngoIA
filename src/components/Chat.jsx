@@ -95,7 +95,7 @@ const Chat = () => {
 
             {/* Conteúdo do chat (rolável) */}
             {/* O mt-16 vai criar espaço para o cabeçalho fixo acima */}
-            <div className="w-full max-w-4xl flex flex-col flex-1 mt-16 px-4 mb-24 lg:mt-20"> {/* Ajustado mt-4 para mt-16/mt-20 e adicionado mb-24 */}
+            <div className="w-full max-w-4xl flex flex-col flex-1 mt-16 px-4 mb-32 lg:mt-20"> {/* Ajustado mt-4 para mt-16/mt-20 e adicionado mb-24 */}
 
                 {/* Mensagens com scroll infinito */}
                 <div className="flex-1 overflow-y-auto py-6 px-4 space-y-4 scrollbar-hide">
