@@ -1,6 +1,6 @@
 // src/components/Chat.jsx
 import React, { useState } from 'react';
-
+import { LuNavigation,LuSendHorizontal } from "react-icons/lu";
 const callGeminiAPI = async (message) => {
 
     const API_KEY = 'AIzaSyBkiyAEQFlHLtzN9e76uy2G7qhWw0bLWwE'; // minha chave da api do gemini
@@ -103,7 +103,7 @@ const Chat = () => {
                         <div
                             className={`p-3 rounded-xl max-w-[75%] shadow-sm ${
                                 msg.sender === 'user'
-                                    ? 'bg-angola-green text-white'
+                                    ? 'bg-angola-red text-white'
                                     : 'bg-angola-yellow bg-opacity-20 text-text-dark'
                             }`}
                         >
@@ -142,13 +142,13 @@ const Chat = () => {
                         md:px-6 md:py-3 /* Aumenta o padding em telas médias e maiores */
                         ml-1 /* Margem menor para telas pequenas */
                         md:ml-2 /* Margem normal para telas médias e maiores */
-                        bg-secondary-brand text-white rounded-full
-                        hover:bg-red-700 transition-colors
+                        bg-black text-white rounded-full
+                        hover:bg-black transition-colors
                         shadow-md disabled:opacity-50 disabled:cursor-not-allowed
                     "
                     disabled={loading}
                 >
-                    Enviar
+                    <LuSendHorizontal />
                 </button>
             </div>
         </div>
