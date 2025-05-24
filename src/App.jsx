@@ -21,7 +21,7 @@ const App = () => {
         >
             {/* O componente Chat agora contém toda a lógica e UI do chatbot */}
             <Chat />
-            <Analytics /> {/* Mantido aqui para garantir que esteja no DOM */}
+            <Analytics /> {/* Metrificador de actividades da app */}
         </div>
     );
 };
