@@ -1,30 +1,41 @@
-// src/App.jsx
-import React from 'react';
-import Chat from './components/Chat';
+import React, { Suspense, lazy } from 'react';
+import samacaca from './imagens/samacaca.webp';
+const Chat = lazy(() => import('./components/Chat'));
 import './index.css';
 import { Analytics } from "@vercel/analytics/react";
-import samacacaImage from '../src/imagens/samacaca.webp';
 
 const App = () => {
     return (
-        <div className="min-h-screen w-full flex flex-col items-center justify-center" // Removido p-4
-             style={{
-                 backgroundImage: `url(${samacacaImage})`,
-                 backgroundSize: 'cover',
-                 backgroundRepeat: 'no-repeat',
-                 backgroundPosition: 'center',
-                 backgroundAttachment: 'fixed', // <-- Esta é a propriedade chave
-                 // Opcional: Adicione um overlay para o texto ficar mais legível
-                 // 'backgroundBlendMode': 'overlay',
-                 // 'backgroundColor': 'rgba(0, 0, 0, 0.5)' // Ajuste a opacidade para escurecer a imagem
-             }}
-        >
-            {/* O componente Chat agora contém toda a lógica e UI do chatbot */}
-            <Chat />
-            <Analytics /> {/* Metrificador de actividades da app */}
+        <div className="min-h-screen w-full flex flex-col items-center justify-center relative">
+            {/* Fundo fixo */}
+            <div
+                className="fixed inset-0 -z-10"
+                style={{
+                    backgroundImage: `url(${samacaca})`,
+                    backgroundSize: 'cover',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'center',
+                    backgroundAttachment: 'fixed',
+                    filter: 'brightness(0.6)',
+                }}
+            />
+
+            <Suspense
+                fallback={
+                    <div className="flex flex-col items-center justify-center h-screen text-white animate-pulse">
+                        <h1 className="text-4xl font-bold text-angola-red">AngoIA</h1>
+                        <p className="mt-4 text-lg">Carregando inteligência...</p>
+                    </div>
+                }
+            >
+                <Chat />
+            </Suspense>
+
+            <Analytics />
         </div>
     );
 };
 
 export default App;
+
 
