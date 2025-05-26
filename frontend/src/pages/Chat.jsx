@@ -183,7 +183,7 @@ const Chat = () => {
 
                     {loading && (
                         <div className="flex justify-start">
-                            <div className="p-3 rounded-lg bg-blue-700 text-gray-800 animate-pulse">
+                            <div className="p-3 rounded-lg bg-gray-200 text-gray-800 animate-pulse">
                                 A pensar...
                             </div>
                         </div>
