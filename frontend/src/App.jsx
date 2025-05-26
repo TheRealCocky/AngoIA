@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import samacaca from './imagens/samacaca.webp';
 const Chat = lazy(() => import('./pages/Chat.jsx'));
+
 import './index.css';
 import { Analytics } from "@vercel/analytics/react";
 
