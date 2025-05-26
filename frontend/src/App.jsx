@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import samacaca from './imagens/samacaca.webp';
-const Chat = lazy(() => import('./pages/Chat.jsx'));
+//const Chat = lazy(() => import('./pages/Chat.jsx'));
+import Chat from './pages/Chat.jsx';
 
 import './index.css';
 import { Analytics } from "@vercel/analytics/react";
@@ -22,18 +23,18 @@ const App = () => {
                 }}
             />
 
-            <Suspense
+            {/* <Suspense
                 fallback={
                     <div className="flex flex-col items-center justify-center h-screen text-white animate-pulse">
                         <h1 className="text-4xl font-bold text-angola-red">AngoIA</h1>
                         <p className="mt-4 text-lg">Carregando inteligência...</p>
                     </div>
                 }
-            >
+            >*/}
                 <Chat />
-            </Suspense>
+                {/*</Suspense>*/}
 
-            <Analytics />
+                <Analytics />
         </div>
     );
 };
