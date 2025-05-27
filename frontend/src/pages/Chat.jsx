@@ -120,25 +120,17 @@ const Chat = () => {
             handleSendMessage();
         }
     };
-
     return (
+        <div className="w-full h-screen flex flex-col items-center">
 
-        <div className="w-full min-h-screen flex flex-col items-center">
-
-
-            {/* 1. CABEÇALHO FIXO */}
+            {/* Cabeçalho */}
             <div className="fixed top-0 left-0 w-full z-50">
-                {/* Telas pequenas: cabeçalho vermelho */}
                 <div className="bg-red-600 flex justify-between items-center py-4 lg:hidden px-4">
-                    <div>
-                        <h1 className="text-2xl font-bold text-white tracking-wide">AngoIA</h1>
-                    </div>
+                    <h1 className="text-2xl font-bold text-white tracking-wide">AngoIA</h1>
                     <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
                         <span className="text-red-600 font-bold">AIA</span>
                     </div>
                 </div>
-
-                {/* Telas grandes: AngoIA à esquerda, perfil à direita */}
                 <div className="hidden lg:flex justify-between items-center px-6 py-4 bg-transparent">
                     <h1 className="text-2xl font-bold text-angola-red tracking-wide">AngoIA</h1>
                     <div className="w-10 h-10 bg-angola-red rounded-full flex items-center justify-center">
@@ -147,9 +139,9 @@ const Chat = () => {
                 </div>
             </div>
 
-            {/* Conteúdo do chat (rolável) */}
-            <div className="w-full max-w-4xl flex flex-col flex-1 mt-16 px-4 mb-32 lg:mt-20">
-                <div className="flex-1 overflow-y-auto py-6 px-4 space-y-4 scrollbar-hide">
+            {/* Conteúdo do chat com scroll */}
+            <div className="flex-1 w-full max-w-4xl mt-16 px-4 mb-32 lg:mt-20 overflow-y-auto">
+                <div className="py-6 px-4 space-y-4 scrollbar-hide">
                     {messages.length === 0 && (
                         <div className="text-center p-6 rounded-lg font-sans backdrop-blur-sm bg-black/40 text-white shadow-lg">
                             <h2 className="text-3xl font-bold">
@@ -191,8 +183,8 @@ const Chat = () => {
                 </div>
             </div>
 
-            {/* Área de input fixa  na parte inferior */}
-            <div className="fixed bottom-0 left-0 w-full border-[#333] z-10  pb-4">
+            {/* Input fixo na parte inferior */}
+            <div className="fixed bottom-0 left-0 w-full z-50   border-gray-700">
                 <div className="max-w-4xl mx-auto px-4 py-3">
                     <div className="relative w-full">
                         <textarea
@@ -232,4 +224,7 @@ const Chat = () => {
 };
 
 export default Chat;
+
+
+
 
