@@ -9,17 +9,14 @@ const Chat = lazy(() => import('./pages/Chat.jsx'));
 const App = () => (
     <Router>
         <div
-            className="min-h-screen w-full flex flex-col items-center justify-center relative"
+            className="min-h-screen w-full flex flex-col items-center justify-center relative bg-cover bg-center bg-no-repeat"
             style={{
                 backgroundImage: `url(${samacaca})`,
-                backgroundSize: 'cover',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'center',
-                backgroundAttachment: 'fixed',
                 filter: 'brightness(0.6)',
             }}
         >
-            <Suspense fallback={
+
+        <Suspense fallback={
                 <div className="flex flex-col items-center justify-center h-screen text-white animate-pulse">
                     <h1 className="text-4xl font-bold text-angola-red">AngoIA</h1>
                     <p className="mt-4 text-lg">Carregando inteligência...</p>
