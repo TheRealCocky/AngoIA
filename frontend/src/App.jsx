@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import {BrowserRouter as Router, Routes, Route,  Navigate} from 'react-router-dom';
 import samacaca from './imagens/samacaca.webp';
 import './index.css';
 import { Analytics } from '@vercel/analytics/react';
@@ -33,8 +33,10 @@ const App = () => {
                     }
                 >
                     <Routes>
-                        <Route path="/chat" element={<Chat />} />
-                        {/* Adicione mais rotas aqui conforme expandir */}
+                        <Routes>
+                            <Route path="/" element={<Navigate to="/chat" replace />} />
+                            <Route path="/chat" element={<Chat />} />
+                        </Routes>
                     </Routes>
                 </Suspense>
 
