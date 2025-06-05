@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import samacaca from './imagens/samacaca.webp';
 import './index.css';
 import { Analytics } from '@vercel/analytics/react';
+import Login from "./pages/LoginPage.jsx";
+import Register from "./pages/RegisterPage.jsx";
 
 const Chat = lazy(() => import('./pages/Chat.jsx'));
 
@@ -25,6 +27,8 @@ const App = () => (
                 <Routes>
                     <Route path="/" element={<Navigate to="/chat" replace />} />
                     <Route path="/chat" element={<Chat />} />
+                    <Route path="/login" element={<Login/>}/>
+                    <Route path="/registar" element={<Register/>}/>
                     {/* outras rotas aqui */}
                 </Routes>
             </Suspense>

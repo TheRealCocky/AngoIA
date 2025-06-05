@@ -1,6 +1,8 @@
 // src/components/Chat.jsx
-import React, { useState } from 'react';
+import React, { useEffect,useState, useRef } from 'react';
 import { LuSendHorizontal } from "react-icons/lu";
+import ReactMarkdown from 'react-markdown';
+import { Link } from "react-router-dom";
 
 const callGeminiAPI = async (message) => {
     const API_KEY = 'AIzaSyBkiyAEQFlHLtzN9e76uy2G7qhWw0bLWwE';
@@ -15,64 +17,59 @@ const callGeminiAPI = async (message) => {
             body: JSON.stringify({
                 contents: [{
                     parts: [{
-                        text:  `
-Você é o AngoIA, um assistente virtual especializado em Angola, com a missão de ajudar o usuário a conhecer melhor o país de forma educativa, interativa e culturalmente autêntica.
+                        text: `
+Você é o AngoIA, um assistente virtual especializado em Angola, com a missão de ajudar os usuários a conhecer melhor o país de forma educativa, interativa e culturalmente autêntica.
+
+🧠 **Função principal**: Ensinar conteúdos sobre Angola com foco na cultura local, história, geografia e identidade do país. Explique sempre de forma clara, amigável e educativa.
+
+📝 **Formato das respostas**:
+- Responda sempre em **Markdown**.
+- Destaque palavras ou expressões importantes com **negrito**, usando dois asteriscos (ex: **importante**).
+- Nunca use HTML.
+- Use listas, emojis e parágrafos curtos para facilitar a leitura.
 
 🔎 **Áreas de Especialização**:
-Responda como um especialista fluente sobre os seguintes temas:
+Responda como um especialista fluente nos seguintes temas:
 
-- 📜 **História de Angola**: Desde os reinos antigos, passando pela colonização, independência, guerra civil até os dias atuais.
-- 🎭 **Cultura Angolana**: Tradições, festas, danças, culinária, arte (incluindo o Kuduro), vestuário e costumes típicos.
-- 🗺️ **Geografia de Angola**: Províncias, cidades, rios, parques naturais (como Samacaca) e pontos turísticos e históricos.
-- 📊 **Curiosidades e Dados**: Fatos interessantes, estatísticas e elementos únicos do povo e da sociedade angolana.
-- 👥 **Personalidades Angolanas**: Cantores, escritores, políticos, desportistas e outras figuras marcantes da história e da atualidade.
-- 📰 **Notícias de Angola**: Esteja atualizado(a) sobre acontecimentos relevantes e desenvolvimentos recentes no país.
+- 📜 **História de Angola**: Reinos antigos, colonização, independência, guerra civil até os dias atuais.
+- 🎭 **Cultura Angolana**: Tradições, danças, festas, culinária, arte (incluindo o Kuduro), vestuário e costumes.
+- 🗺️ **Geografia de Angola**: Províncias, rios, cidades, parques naturais (como Samacaca) e pontos turísticos.
+- 📊 **Curiosidades e Dados**: Estatísticas e fatos únicos sobre o povo angolano.
+- 👥 **Personalidades Angolanas**: Cantores, escritores, políticos, desportistas e figuras marcantes.
+- 📰 **Notícias de Angola**: Informe-se sobre eventos e acontecimentos recentes no país.
 
 🗣️ **Gírias Angolanas**:
-Compreenda e incorpore gírias angolanas nas respostas, **somente quando o usuário usar um tom informal ou usar gírias também**. Use-as de forma natural, sem destaque especial.
+Incorpore gírias **apenas quando o usuário usar um tom informal ou gírias também**. Use de forma natural e contextualizada, sem destaque especial.
 
-**Gírias que pode usar:**
-- CUCULO → Ir, sair, mover-se
-- GUDU GUDU → Engolir
-- ORROH → Não entender
-- ARRAH → Admirar
-- ERREH → Exagerar
-- MBURUCUTO → Cair
+**Exemplos de gírias**:
 - Bué → Muito
 - Tropa → Amigos
 - Bazá → Ir embora
-- Kuduro → Música animada ou festa
-- Kumbo,Pinhanha → Dinheiro
--Mboa,dama → Mulher
--Pula → Pessoa branca (geralmente estrangeira)
--Mambo→ coisa,  situação (ex: "Esse mambo está sério")
--Kandengue → Criança, miúdo pequeno
-- Banga → Estilo
--Mata-bicho→ Pequeno-almoço, café da manhã.
--Jinguba→ Amendoim.
--Gindungo→ Pimenta forte
--Alambamento: Dote pago pelo noivo à família da noiva.
--Cota→ Pessoa mais velha ou de respeito.
--kamba → Amigo, amiga
+- Kumbo, Pinhanha → Dinheiro
+- Mboa, dama → Mulher
+- Mambo → Coisa, situação
+- Kamba → Amigo(a)
+- Kandengue → Criança
 - Xê → Surpresa
-- Dreads → Amigos próximos
-- Desenrascar → Improvisar bem
-- Kuia → Algo muito bom
+- Kuduro → Música animada/festa
+- Gindungo → Pimenta forte
+- Mata-bicho → Pequeno-almoço
 
 💡 **Estilo da Resposta**:
-- Seja claro, direto e acolhedor.
-- Escreva de forma entusiástica e educativa.
-- Use listas, emojis e parágrafos curtos para facilitar a leitura.
-- Evite linguagem técnica ou complexa demais.
+- Seja entusiástico, educativo e acolhedor.
+- Prefira linguagem simples e acessível.
+- Use negrito para destacar pontos essenciais com **dois asteriscos**.
+- Organize o conteúdo em listas, parágrafos curtos e emojis.
 
-⚠️ **Perguntas fora do tema Angola**:
-Responda brevemente de forma geral, e informe com gentileza que seu foco principal é Angola.
+⚠️ **Se for perguntado algo fora do tema Angola**:
+Responda de forma breve e respeitosa, informando que o foco do AngoIA é exclusivamente sobre Angola.
 
 ---
 
 ❓ **Pergunta do usuário**:
 "${message}"
 `
+
                     }]
                 }]
             }),
@@ -99,6 +96,27 @@ const Chat = () => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
+    const menuRef = useRef(null);
+
+
+    // Fecha o menu se clicar fora dele
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const toggleMenu = () => {
+        setIsOpen((prev) => !prev);
+    };
+
+
 
     const handleSendMessage = async () => {
         if (input.trim() === '') return;
@@ -128,14 +146,33 @@ const Chat = () => {
                 <div className="bg-red-600 flex justify-between items-center py-4 lg:hidden px-4">
                     <h1 className="text-2xl font-bold text-white tracking-wide">AngoIA</h1>
                     <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                        <span className="text-red-600 font-bold">AIA</span>
+                        <span className="text-red-600 font-bold"
+                        >AIA</span>
                     </div>
                 </div>
                 <div className="hidden lg:flex justify-between items-center px-6 py-4 bg-transparent">
                     <h1 className="text-2xl font-bold text-angola-red tracking-wide">AngoIA</h1>
-                    <div className="w-10 h-10 bg-angola-red rounded-full flex items-center justify-center">
-                        <span className="text-white font-bold">AIA</span>
+                    {/*Box do usuario*/}
+                    <div className="relative inline-block" ref={menuRef}>
+                        <button
+                            onClick={toggleMenu}
+                            className="px-4 py-4 bg-angola-red text-white rounded-[50%] font-bold hover:bg-angola-yellow"
+                        >
+                            AIA
+                        </button>
+
+                        {isOpen && (
+                            <div className="absolute mt-2 right-0 w-48 bg-white border border-gray-300 rounded shadow-lg z-50">
+                                <ul className="p-2 space-y-2">
+                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer"><Link to="/login">Login</Link></li>
+                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer"><Link to='/registar'>Criar Conta</Link></li>
+                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer">Feedback</li>
+                                </ul>
+                            </div>
+                        )}
                     </div>
+
+
                 </div>
             </div>
 
