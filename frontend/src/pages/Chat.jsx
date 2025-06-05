@@ -140,19 +140,40 @@ const Chat = () => {
     };
     return (
         <div className="w-full h-screen flex flex-col items-center">
-
             {/* Cabeçalho */}
             <div className="fixed top-0 left-0 w-full z-50">
+                {/* Mobile */}
                 <div className="bg-red-600 flex justify-between items-center py-4 lg:hidden px-4">
                     <h1 className="text-2xl font-bold text-white tracking-wide">AngoIA</h1>
-                    <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                        <span className="text-red-600 font-bold"
-                        >AIA</span>
+                    <div className="relative" ref={menuRef}>
+                        <button
+                            onClick={toggleMenu}
+                            className="w-10 h-10 bg-white rounded-full flex items-center justify-center"
+                        >
+                            <span className="text-red-600 font-bold">AIA</span>
+                        </button>
+
+                        {isOpen && (
+                            <div className="absolute mt-2 right-0 w-48 bg-white border border-gray-300 rounded shadow-lg z-50">
+                                <ul className="p-2 space-y-2">
+                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer">
+                                        <Link to="/login">Login</Link>
+                                    </li>
+                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer">
+                                        <Link to="/registar">Criar Conta</Link>
+                                    </li>
+                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer">
+                                        Feedback
+                                    </li>
+                                </ul>
+                            </div>
+                        )}
                     </div>
                 </div>
+
+                {/* Desktop */}
                 <div className="hidden lg:flex justify-between items-center px-6 py-4 bg-transparent">
                     <h1 className="text-2xl font-bold text-angola-red tracking-wide">AngoIA</h1>
-                    {/*Box do usuario*/}
                     <div className="relative inline-block" ref={menuRef}>
                         <button
                             onClick={toggleMenu}
@@ -164,15 +185,19 @@ const Chat = () => {
                         {isOpen && (
                             <div className="absolute mt-2 right-0 w-48 bg-white border border-gray-300 rounded shadow-lg z-50">
                                 <ul className="p-2 space-y-2">
-                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer"><Link to="/login">Login</Link></li>
-                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer"><Link to='/registar'>Criar Conta</Link></li>
-                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer">Feedback</li>
+                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer">
+                                        <Link to="/login">Login</Link>
+                                    </li>
+                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer">
+                                        <Link to="/registar">Criar Conta</Link>
+                                    </li>
+                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer">
+                                        Feedback
+                                    </li>
                                 </ul>
                             </div>
                         )}
                     </div>
-
-
                 </div>
             </div>
 
@@ -182,7 +207,10 @@ const Chat = () => {
                     {messages.length === 0 && (
                         <div className="text-center p-6 rounded-lg font-sans backdrop-blur-sm bg-black/40 text-white shadow-lg">
                             <h2 className="text-3xl font-bold">
-                                Bem-vindo(a) à <span className="bg-gradient-to-r from-angola-yellow to-angola-red text-transparent bg-clip-text">AngoIA</span>
+                                Bem-vindo(a) à{" "}
+                                <span className="bg-gradient-to-r from-angola-yellow to-angola-red text-transparent bg-clip-text">
+                  AngoIA
+                </span>
                             </h2>
                             <p className="text-xl mt-4">
                                 Seu guia especialista sobre <span className="font-semibold">Angola</span>.
@@ -196,13 +224,13 @@ const Chat = () => {
                     {messages.map((msg, index) => (
                         <div
                             key={index}
-                            className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                            className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
                         >
                             <div
                                 className={`p-3 rounded-xl max-w-[75%] ${
-                                    msg.sender === 'user'
-                                        ? 'bg-angola-red text-white'
-                                        : 'bg-yellow-300 text-black'
+                                    msg.sender === "user"
+                                        ? "bg-angola-red text-white"
+                                        : "bg-yellow-300 text-black"
                                 }`}
                             >
                                 {msg.text}
@@ -221,33 +249,33 @@ const Chat = () => {
             </div>
 
             {/* Input fixo na parte inferior */}
-            <div className="fixed bottom-0 left-0 w-full z-50   border-gray-700">
+            <div className="fixed bottom-0 left-0 w-full z-50 border-gray-700">
                 <div className="max-w-4xl mx-auto px-4 py-3">
                     <div className="relative w-full">
-                        <textarea
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={handleKeyPress}
-                            placeholder="Digite sua pergunta sobre Angola..."
-                            rows={1}
-                            className="
-                                w-full pr-12 pl-4 pt-3 pb-[68px]
-                                rounded-xl bg-[#2b2b2b] text-white
-                                placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-angola-yellow
-                                border border-[#444]
-                                resize-none overflow-hidden
-                                disabled:opacity-50
-                            "
-                            style={{ lineHeight: '1.5' }}
-                        />
+            <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyPress}
+                placeholder="Digite sua pergunta sobre Angola..."
+                rows={1}
+                className="
+                w-full pr-12 pl-4 pt-3 pb-[68px]
+                rounded-xl bg-[#2b2b2b] text-white
+                placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-angola-yellow
+                border border-[#444]
+                resize-none overflow-hidden
+                disabled:opacity-50
+              "
+                style={{ lineHeight: "1.5" }}
+            />
                         <button
                             onClick={handleSendMessage}
                             className="
-                                absolute right-2 top-20 transform -translate-y-1/2
-                                bg-[#3d3d3d] text-white p-2 rounded-full
-                                hover:bg-[#555] transition-colors
-                                disabled:opacity-40 disabled:cursor-not-allowed
-                            "
+                absolute right-2 top-20 transform -translate-y-1/2
+                bg-[#3d3d3d] text-white p-2 rounded-full
+                hover:bg-[#555] transition-colors
+                disabled:opacity-40 disabled:cursor-not-allowed
+              "
                             disabled={!input.trim() || loading}
                             aria-label="Enviar mensagem"
                         >
