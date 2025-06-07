@@ -1,8 +1,7 @@
 // src/components/Chat.jsx
 import React, { useEffect,useState, useRef } from 'react';
 import { LuSendHorizontal } from "react-icons/lu";
-import ReactMarkdown from 'react-markdown';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const callGeminiAPI = async (message) => {
     const API_KEY = 'AIzaSyBkiyAEQFlHLtzN9e76uy2G7qhWw0bLWwE';
@@ -99,6 +98,13 @@ const Chat = () => {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef(null);
 
+    const navigate = useNavigate();
+
+// 2. CRIE A FUNÇÃO DE NAVEGAÇÃO
+    const handleNavigation = (path) => {
+        navigate(path);
+        setTimeout(()=>setIsOpen(false),100); // Fecha o menu após definir a navegação
+    };
 
     // Fecha o menu se clicar fora dele
     useEffect(() => {
@@ -108,11 +114,12 @@ const Chat = () => {
             }
         };
 
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        document.addEventListener("click", handleClickOutside);
+        return () => document.removeEventListener("click", handleClickOutside);
     }, []);
 
-    const toggleMenu = () => {
+    const toggleMenu = (e) => {
+       e.stopPropagation();// <-- impede que o clique feche o menu imediatamente
         setIsOpen((prev) => !prev);
     };
 
@@ -147,27 +154,50 @@ const Chat = () => {
                     <h1 className="text-2xl font-bold text-white tracking-wide">AngoIA</h1>
                     <div className="relative" ref={menuRef}>
                         <button
-                            onClick={toggleMenu}
+                            onClick={(e)=>toggleMenu(e)}
                             className="w-10 h-10 bg-white rounded-full flex items-center justify-center"
                         >
                             <span className="text-red-600 font-bold">AIA</span>
                         </button>
 
                         {isOpen && (
-                            <div className="absolute mt-2 right-0 w-48 bg-white border border-gray-300 rounded shadow-lg z-50">
+                            <div className="absolute mt-2 right-0 w-48 bg-white border border-gray-300 rounded shadow-lg z-[9999]">
                                 <ul className="p-2 space-y-2">
-                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer">
-                                        <Link to="/login">Login</Link>
+                                    <li>
+                                        <button
+                                            onClick={() => handleNavigation('/login')}
+                                            className="w-full text-left px-2 py-1 rounded hover:bg-gray-100"
+                                        >
+                                            Login
+                                        </button>
                                     </li>
-                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer">
-                                        <Link to="/registar">Criar Conta</Link>
+                                    <li>
+                                        <button
+                                            onClick={() => handleNavigation('/registar')}
+                                            className="w-full text-left px-2 py-1 rounded hover:bg-gray-100"
+                                        >
+                                            Criar Conta
+                                        </button>
                                     </li>
-                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer">
-                                        Feedback
+                                    <li>
+                                        <button
+                                            onClick={() => {
+                                                alert('Feedback');
+                                                setIsOpen(false);
+                                            }}
+                                            className="w-full text-left px-2 py-1 rounded hover:bg-gray-100"
+                                        >
+                                            Feedback
+                                        </button>
                                     </li>
                                 </ul>
                             </div>
                         )}
+
+
+
+
+
                     </div>
                 </div>
 
