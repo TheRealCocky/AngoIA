@@ -187,7 +187,7 @@ const Chat = () => {
                                             }}
                                             className="w-full text-left px-2 py-1 rounded hover:bg-gray-100"
                                         >
-                                            Feedback
+                                            Sobre Nós
                                         </button>
                                     </li>
                                 </ul>
@@ -222,7 +222,7 @@ const Chat = () => {
                                         <Link to="/registar">Criar Conta</Link>
                                     </li>
                                     <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer">
-                                        Feedback
+                                        Sobre Nós
                                     </li>
                                 </ul>
                             </div>
