@@ -1,0 +1,6 @@
+.env
+*.json
+backend/angoia-backend-key.json
+node_modules/
+.DS_Store
+.idea/

@@ -3,93 +3,35 @@ import React, { useEffect,useState, useRef } from 'react';
 import { LuSendHorizontal } from "react-icons/lu";
 import { Link, useNavigate } from "react-router-dom";
 
-const callGeminiAPI = async (message) => {
-    const API_KEY = 'AIzaSyBkiyAEQFlHLtzN9e76uy2G7qhWw0bLWwE';
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+
+
+const callBackendAPI = async (message) => {
 
     try {
-        const response = await fetch(API_URL, {
+        const token = localStorage.getItem('token');
+
+        const response = await fetch('http://localhost:3000/api/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                ...(token && { Authorization: `Bearer ${token}` })
             },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: `
-Você é o AngoIA, um assistente virtual especializado em Angola, com a missão de ajudar os usuários a conhecer melhor o país de forma educativa, interativa e culturalmente autêntica.
-
-🧠 **Função principal**: Ensinar conteúdos sobre Angola com foco na cultura local, história, geografia e identidade do país. Explique sempre de forma clara, amigável e educativa.
-
-📝 **Formato das respostas**:
-- Responda sempre em **Markdown**.
-- Destaque palavras ou expressões importantes com **negrito**, usando dois asteriscos (ex: **importante**).
-- Nunca use HTML.
-- Use listas, emojis e parágrafos curtos para facilitar a leitura.
-
-🔎 **Áreas de Especialização**:
-Responda como um especialista fluente nos seguintes temas:
-
-- 📜 **História de Angola**: Reinos antigos, colonização, independência, guerra civil até os dias atuais.
-- 🎭 **Cultura Angolana**: Tradições, danças, festas, culinária, arte (incluindo o Kuduro), vestuário e costumes.
-- 🗺️ **Geografia de Angola**: Províncias, rios, cidades, parques naturais (como Samacaca) e pontos turísticos.
-- 📊 **Curiosidades e Dados**: Estatísticas e fatos únicos sobre o povo angolano.
-- 👥 **Personalidades Angolanas**: Cantores, escritores, políticos, desportistas e figuras marcantes.
-- 📰 **Notícias de Angola**: Informe-se sobre eventos e acontecimentos recentes no país.
-
-🗣️ **Gírias Angolanas**:
-Incorpore gírias **apenas quando o usuário usar um tom informal ou gírias também**. Use de forma natural e contextualizada, sem destaque especial.
-
-**Exemplos de gírias**:
-- Bué → Muito
-- Tropa → Amigos
-- Bazá → Ir embora
-- Kumbo, Pinhanha → Dinheiro
-- Mboa, dama → Mulher
-- Mambo → Coisa, situação
-- Kamba → Amigo(a)
-- Kandengue → Criança
-- Xê → Surpresa
-- Kuduro → Música animada/festa
-- Gindungo → Pimenta forte
-- Mata-bicho → Pequeno-almoço
-
-💡 **Estilo da Resposta**:
-- Seja entusiástico, educativo e acolhedor.
-- Prefira linguagem simples e acessível.
-- Use negrito para destacar pontos essenciais com **dois asteriscos**.
-- Organize o conteúdo em listas, parágrafos curtos e emojis.
-
-⚠️ **Se for perguntado algo fora do tema Angola**:
-Responda de forma breve e respeitosa, informando que o foco do AngoIA é exclusivamente sobre Angola.
-
----
-
-❓ **Pergunta do usuário**:
-"${message}"
-`
-
-                    }]
-                }]
-            }),
+            body: JSON.stringify({ message })
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error("Erro na API Gemini (status não-OK):", response.status, errorText);
-            throw new Error(`API error: ${response.status} - ${errorText}`);
+            return data.message || 'Erro ao processar sua mensagem.';
         }
 
-        const data = await response.json();
-        if (data.candidates && data.candidates.length > 0) {
-            return data.candidates[0].content.parts[0].text;
-        }
-        return "Desculpe, não consegui obter uma resposta no momento. Tente novamente.";
+        return data.resposta || 'Resposta não encontrada.';
     } catch (error) {
-        console.error("Erro ao chamar a API do Gemini:", error);
-        return "Ocorreu um erro ao processar sua solicitação. Por favor, tente mais tarde.";
+        console.error('Erro ao chamar a API do backend:', error);
+        return 'Erro ao processar a solicitação.';
     }
 };
+
 
 const Chat = () => {
     const [messages, setMessages] = useState([]);
@@ -133,7 +75,7 @@ const Chat = () => {
         setInput('');
         setLoading(true);
 
-        const botResponse = await callGeminiAPI(input);
+        const botResponse = await callBackendAPI(input);
         const botMessage = { sender: 'bot', text: botResponse };
         setMessages((prevMessages) => [...prevMessages, botMessage]);
         setLoading(false);
@@ -144,6 +86,12 @@ const Chat = () => {
             e.preventDefault();
             handleSendMessage();
         }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('token'); // Remove o JWT
+        navigate('/');              // Redireciona para o login (ou use "/")
+        setIsOpen(false);                // Fecha o menu
     };
     return (
         <div className="w-full h-screen flex flex-col items-center">
@@ -179,16 +127,11 @@ const Chat = () => {
                                             Criar Conta
                                         </button>
                                     </li>
-                                    <li>
-                                        <button
-                                            onClick={() => {
-                                                alert('Feedback');
-                                                setIsOpen(false);
-                                            }}
-                                            className="w-full text-left px-2 py-1 rounded hover:bg-gray-100"
-                                        >
-                                            Sobre Nós
-                                        </button>
+                                    <li
+                                        onClick={handleLogout}
+                                        className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer"
+                                    >
+                                        Sair
                                     </li>
                                 </ul>
                             </div>
@@ -221,8 +164,9 @@ const Chat = () => {
                                     <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer">
                                         <Link to="/registar">Criar Conta</Link>
                                     </li>
-                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer">
-                                        Sobre Nós
+                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer"
+                                    onClick={handleLogout}>
+                                        Sair
                                     </li>
                                 </ul>
                             </div>

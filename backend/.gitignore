@@ -1,5 +1,19 @@
+# Ignorar variáveis de ambiente
 .env
+
+# Ignorar todas as chaves e arquivos JSON sensíveis
 *.json
-angoia-backend-key.json
+
+# Excluir a chave específica do backend (precaução dupla)
+backend/angoia-backend-key.json
+
+# Ignorar dependências
 node_modules/
+
+# Ignorar arquivos do macOS
 .DS_Store
+
+# Ignorar configurações locais do WebStorm/IntelliJ
+.idea/
+
+
