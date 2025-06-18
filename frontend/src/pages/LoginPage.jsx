@@ -7,12 +7,16 @@ export default function Login() {
   const [erro, setErro] = useState('');
   const navigate = useNavigate();
 
+
+  const baseURL= window.location.hostname==='localhost'
+      ? 'http://localhost:3000'
+      : 'https://angoia-backend.onrender.com';
   const handleLogin = async (e) => {
     e.preventDefault();
     setErro('');
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/login', {
+      const response = await fetch(`${baseURL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

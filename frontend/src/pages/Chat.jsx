@@ -6,11 +6,13 @@ import { Link, useNavigate } from "react-router-dom";
 
 
 const callBackendAPI = async (message) => {
-
+const baseURL= window.location.hostname==='localhost'
+    ? 'http://localhost:3000'
+    : 'https://angoia-backend.onrender.com';
     try {
         const token = localStorage.getItem('token');
 
-        const response = await fetch('http://localhost:3000/api/chat', {
+        const response = await fetch(`${baseURL}/api/chat`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

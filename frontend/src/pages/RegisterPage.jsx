@@ -11,6 +11,11 @@ export default function Cadastro() {
   const [sucesso, setSucesso] = useState('');
   const navigate = useNavigate();
 
+const baseURL= window.location.hostname==='localhost'
+  ?'http://localhost:3000'
+  :'https://angoia-backend.onrender.com';
+
+
   const handleCadastro = async (e) => {
     e.preventDefault();
     setErro('');
@@ -22,7 +27,7 @@ export default function Cadastro() {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/register', {
+      const response = await fetch(`${baseURL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
