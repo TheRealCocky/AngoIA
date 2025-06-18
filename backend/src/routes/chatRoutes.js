@@ -1,10 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const { handleChat } = require('../controllers/chatController');
 const authMiddleware = require('../middlewares/authMiddleware');
+const offensiveFilter = require('../middlewares/offensiveFilter');
 
-// exemplo de rota protegida
-router.get('/mensagens', authMiddleware, (req, res) => {
-    res.json({ message: 'Acesso autorizado às mensagens' });
-});
+router.post('/',  offensiveFilter, handleChat);
 
 module.exports = router;
+
+
+
+
+

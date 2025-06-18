@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "angoia-backend",
+  "private_key_id": "092f589112fd79baa3a8aad898b558ac3bdb04ac",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDARiywrRvqwWCa\nUlIXj99ZTzIl4y2YbWc07REI2pJFgcTzwxe1E1mPnSDPwiQKdAjsnGXjmaXgLG3f\n1LGVGlGUUdQmJvqd7q2bOsL5qg3hKG8S7yV3/IWvCfU8oZP4QTIlx+KFvc4qgy9p\n8dwAu5nzxMo5IwP6ffZyeMWz3xME8Pw57Kdizf2XVO2ATSda0QTZiYHc/y5Upu3T\n8wAbx1tXqD335/L+4d1cdmQ1jonv8rGEsg9FmrfGuVN7Ty15msint09qqw+H57ow\nkc7Ij5w4+QNEzCewqE5Lr0QD48tz3qgcSJ0JeQsZrDb8co3FrVZZhvldlY/EcBf5\ntU/8UhbHAgMBAAECggEAW9EnBjekXTZ7KzakfRv3TG7FQ9J4s5GK93s95zx5HTgb\nFUzUxWO4IRynzo6nJ1bB7DvDbCyzSZnt3jVzmAA5dNqetJlolIKl5Lrq4M6UUjE8\n2Y3aFrJAJJZcxddjEeoQSHprcfJxwVtkCPO2W6M6oW4YI7DU9YmxZnjF8F9WdcTI\nwDD8/e7EzvCyscxikAANQGbRggQQtlM5Z4rcvIVPSjPMHsNnEPzt++v+ausLsjGR\nbbCu3oxIU7yjSzR3rCFFPd7i9dzZ+DuA0FQLhF/DFOUcHRtx2PbKG6FxehWBtuNO\nlBaCCOnrZV6v6JkF4pxyHgTry3pmQ0FEF+DcnENeAQKBgQD+zk12Id5G7QQx+/L5\nsDyT5h0TXlRomxZytW0NGV7wDPMWoOeAvZZwlECbbjBJuwqB8BXyB1n+Lt8fCM8S\ni2TNkjAkkUIcGlxetTl4MVnX5LnHzG7yulersPXJ+uDIpY+x22EoZB4gFuJ+cjPB\naBrv47VknT4ZvYCtlyLRnuTXkwKBgQDBLNnZcUP6N8A6cxVuWazOqCJ4G4u7TOb+\nkJ14+C68T2Tfd1U1XDkcOAfC1Sn50PACTWTpSlVZAQnrFzbKCszfm0C/W8Rv2kKl\nM3PbXUTjTzTidD64dbiHOxaOOipPI1bFHQBnTQtwYfxT9xBZOjcjfsqx7yVR7G+e\nAfFYK/RcfQKBgDhlHr3bpx+Zi8koU1GyEOZHEv5bbWEtmh1PTFCO4fVNWGwUtshG\nrcpC9b2w+J0I+b1ijujfeaqJYzayM2qOUYQyK9ecEr63kuQfRhX1DkZ7SCcRdyjf\n11GXu/61ORUPl6ssu+c9qXE+v2hvDEdtLDEV++rF5p251IYXIky01z9jAoGAAwe1\nExgXvOEK/t+3QlfdwhAZGlE0S+fU58FU9wTNlt6X8nlouMGNk8e9N20oj2abnS2h\nm5cy54aApVNj5J9uv0MsLNQ/rJF74iOAebxozDf92F+CbFpMXrKqk+iNqVggkE74\nJqaqu0SONLL3aq7jFodynn/l0fcneQ8Gvh9SYfECgYEAvotWF2qd3ZoLEK97Pyww\nmOIEPO1RZlxXLA0AtHSkvcCcD22VHiUEy7JfGYojWbuD6A2sp4UR66/k8ldPWO/l\nN5ub7f8kwV0thzvtp+hIEeAnyU/KNFaPHS2Y6H591pT5/uA9hNFEr4cI9mQZmwvF\noEt6PaxO/7sg3BjJbS3NllU=\n-----END PRIVATE KEY-----\n",
+  "client_email": "angoia-backend@angoia-backend.iam.gserviceaccount.com",
+  "client_id": "116118847446816985591",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/angoia-backend%40angoia-backend.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

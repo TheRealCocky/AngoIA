@@ -6,7 +6,9 @@ require('dotenv').config()
 // import routes
 const authRoutes = require('../backend/src/routes/authRoutes');
 const chatRoutes = require('../backend/src/routes/chatRoutes');
+const geminiRoutes = require('./src/routes/geminiRoutes');
 const feedbackRoutes = require('../backend/src/routes/feedbackRoutes');
+const historyRoutes = require('./src/routes/historyRoutes');
 const {connection} = require("mongoose");
 
 
@@ -18,7 +20,9 @@ app.use(cors())
 app.use(express.json())
 // Rotas
 app.use('/api/auth', authRoutes);
-//app.use('/api/chat', chatRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/gemini', geminiRoutes);
+app.use('/api/history', historyRoutes);
 //app.use('/api/feedback', feedbackRoutes);
 
 
@@ -33,6 +37,7 @@ mongoose.connect(process.env.MONGO_URI).then(()=>{
     console.error('Erro ao conectar ao MongoDB:', err.message);
 });
 //http://localhost:3000/api/auth/register
+//http://localhost:3000/api/chat
 
 
 
