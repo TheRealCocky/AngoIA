@@ -34,7 +34,16 @@ const loginUser = async (req, res) => {
             return res.status(401).json({ message: 'Palavra-passe incorreta' });
         }
 
-        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const token = jwt.sign(
+            {
+                id: user._id,
+                username: user.name, // <-- isso é o que usas para exibir no frontend
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+
 
         res.status(200).json({
             message: 'Login realizado com sucesso',

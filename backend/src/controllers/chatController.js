@@ -1,23 +1,39 @@
+// ✅ chatController.js
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { getGeminiResponse } = require('../utils/geminiClient');
-const { isRelevantToAngola } = require('../utils/relevanceChecker');
 const { construirPrompt } = require('../utils/promptBuilder');
+const {
+    isRelevantToAngola,
+    isInterestingEnough,
+    shouldStoreMessage
+} = require('../utils/relevanceChecker');
 const Conversation = require('../models/Conversation');
 const InterestingQuestion = require('../models/InterestingQuestion');
 
-// Mapa para controle de limite de visitantes por IP
 const visitantes = new Map();
+
+const isSaudacaoSimples = (texto = '') => {
+    const frases = [
+        "oi", "olá", "ola", "bom dia", "boa tarde", "boa noite",
+        "como estás", "como vai", "tudo bem", "yá", "xê", "hello", "hi"
+    ];
+    return frases.includes(texto.trim().toLowerCase());
+};
 
 const handleChat = async (req, res) => {
     const { message } = req.body;
 
-    // 🚫 Verifica se a mensagem está vazia ou inválida
     if (!message || typeof message !== 'string' || message.trim() === '') {
         return res.status(400).json({ message: 'A pergunta não pode estar vazia.' });
     }
 
-    // 🔐 Tentativa de autenticação manual via token (caso o middleware não tenha sido usado)
+    if (isSaudacaoSimples(message)) {
+        return res.status(200).json({
+            resposta: "Olá! Em que posso ajudar sobre Angola hoje? 🇦🇴"
+        });
+    }
+
     const authHeader = req.headers.authorization;
     if (authHeader?.startsWith('Bearer ')) {
         try {
@@ -30,44 +46,18 @@ const handleChat = async (req, res) => {
         }
     }
 
-    // 🧾 Limite para visitantes: máximo de 5 perguntas por IP
     const ip = req.ip;
     if (!req.user) {
         const count = visitantes.get(ip) || 0;
         if (count >= 5) {
             return res.status(403).json({
-                message: '⚠️ Você atingiu o limite de 5 perguntas como visitante. Crie uma conta para continuar usando o AngoIA. 🇦🇴'
+                message: '⚠️ Limite de 5 perguntas como visitante. Crie uma conta para continuar usando o AngoIA. 🇦🇴'
             });
         }
         visitantes.set(ip, count + 1);
     }
 
-    // 🌍 Verifica se a pergunta é relevante para Angola
-    const relevante = await isRelevantToAngola(message);
-    if (!relevante) {
-        return res.status(200).json({
-            resposta: `
-**Olá! 👋 Eu sou o AngoIA**, seu assistente cultural de Angola 🇦🇴.
-
-Atualmente, respondo perguntas exclusivamente sobre:
-- **História**
-- **Cultura**
-- **Províncias**
-- **Figuras nacionais**
-- **Curiosidades sobre Angola**
-
-Experimente perguntar:
-*“Qual é a capital da província de Benguela?”* 🗺️  
-*“O que é Kuduro?”* 🎶  
-*“Quem foi Agostinho Neto?”* 📜
-
-Vamos descobrir juntos! 🇦🇴✨
-            `.trim()
-        });
-    }
-
     try {
-        // 📜 Recupera as últimas 3 mensagens anteriores, se o usuário estiver autenticado
         let historico = [];
         if (req.user?.id) {
             historico = await Conversation.find({ user: req.user.id })
@@ -75,14 +65,41 @@ Vamos descobrir juntos! 🇦🇴✨
                 .limit(3);
         }
 
-        // 🧠 Gera o prompt com personalidade + histórico de conversa
         const prompt = construirPrompt(message, historico);
-
-        // 🧩 Chama a IA Gemini com o prompt completo
         const resposta = await getGeminiResponse(prompt);
 
-        // 💾 Salva no banco de dados apenas se a pergunta for relevante e o usuário estiver autenticado
-        if (req.user?.id && relevante) {
+        const isCurta = message.trim().split(/\s+/).length <= 3;
+        const respostaRuim = !resposta || resposta.includes('Erro') || resposta.includes('não consegui');
+
+        let jaExiste = false;
+        if (req.user?.id) {
+            const limite = new Date(Date.now() - 3 * 86400000);
+            jaExiste = await Conversation.findOne({
+                user: req.user.id,
+                question: { $regex: new RegExp(`^${message.trim()}$`, 'i') },
+                createdAt: { $gte: limite }
+            });
+        }
+
+        let atingiuLimite = false;
+        if (req.user?.id) {
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            const countHoje = await Conversation.countDocuments({
+                user: req.user.id,
+                createdAt: { $gte: hoje }
+            });
+            atingiuLimite = countHoje >= 20;
+        }
+
+        if (
+            req.user?.id &&
+            !isCurta &&
+            !respostaRuim &&
+            !jaExiste &&
+            !atingiuLimite &&
+            shouldStoreMessage(message, resposta)
+        ) {
             await Conversation.create({
                 user: req.user.id,
                 question: message,
@@ -99,16 +116,14 @@ Vamos descobrir juntos! 🇦🇴✨
             });
         }
 
-        // ✅ Envia a resposta ao frontend
-        res.status(200).json({ resposta });
+        return res.status(200).json({ resposta });
 
     } catch (error) {
-        console.error('❌ Erro no chatController:', error.message);
-        res.status(500).json({ message: 'Erro ao gerar resposta.' });
+        console.error('Erro no chatController:', error.message);
+        return res.status(500).json({ message: 'Erro ao gerar resposta.' });
     }
 };
 
-// 🎯 Gera tags automáticas com base no conteúdo da pergunta
 const gerarTags = (message) => {
     const tags = [];
     const texto = message.toLowerCase();
@@ -122,6 +137,8 @@ const gerarTags = (message) => {
 };
 
 module.exports = { handleChat };
+
+
 
 
 

@@ -2,6 +2,9 @@
 import React, { useEffect,useState, useRef } from 'react';
 import { LuSendHorizontal } from "react-icons/lu";
 import { Link, useNavigate } from "react-router-dom";
+import { jwtDecode } from 'jwt-decode';
+
+
 
 
 
@@ -40,6 +43,7 @@ const Chat = () => {
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [username, setUsername] = useState('');
     const menuRef = useRef(null);
 
     const navigate = useNavigate();
@@ -51,6 +55,26 @@ const Chat = () => {
     };
 
     // Fecha o menu se clicar fora dele
+    // Carrega o username do localStorage
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const decoded = jwtDecode(token);
+                console.log(decoded.username); // precisa estar dentro do token
+
+                if (decoded.username) setUsername(decoded.username);
+// <-- Corrige aqui conforme o payload
+            } catch (error) {
+                console.error("Erro ao decodificar JWT:", error);
+            }
+        }
+    }, []);
+
+
+
+
+// Fecha menu se clicar fora
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -61,6 +85,8 @@ const Chat = () => {
         document.addEventListener("click", handleClickOutside);
         return () => document.removeEventListener("click", handleClickOutside);
     }, []);
+
+
 
     const toggleMenu = (e) => {
        e.stopPropagation();// <-- impede que o clique feche o menu imediatamente
@@ -118,7 +144,7 @@ const Chat = () => {
                                             onClick={() => handleNavigation('/login')}
                                             className="w-full text-left px-2 py-1 rounded hover:bg-gray-100"
                                         >
-                                            Login
+                                            Entrar
                                         </button>
                                     </li>
                                     <li>
@@ -129,6 +155,13 @@ const Chat = () => {
                                             Criar Conta
                                         </button>
                                     </li>
+                                    <li
+
+                                        className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer"
+                                    >
+                                        <Link to="/angoia"> Sobre AngoIA</Link>
+                                    </li>
+
                                     <li
                                         onClick={handleLogout}
                                         className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer"
@@ -152,7 +185,7 @@ const Chat = () => {
                     <div className="relative inline-block" ref={menuRef}>
                         <button
                             onClick={toggleMenu}
-                            className="px-4 py-4 bg-angola-red text-white rounded-[50%] font-bold hover:bg-angola-yellow"
+                            className="px-4 py-4 bg-angola-red text-black rounded-[50%] font-bold hover:bg-angola-yellow"
                         >
                             AIA
                         </button>
@@ -161,13 +194,16 @@ const Chat = () => {
                             <div className="absolute mt-2 right-0 w-48 bg-white border border-gray-300 rounded shadow-lg z-50">
                                 <ul className="p-2 space-y-2">
                                     <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer">
-                                        <Link to="/login">Login</Link>
+                                        <Link to="/login">Entrar</Link>
                                     </li>
                                     <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer">
                                         <Link to="/registar">Criar Conta</Link>
                                     </li>
+                                    <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer">
+                                        <Link to="/angoia"> Sobre AngoIA</Link>
+                                    </li>
                                     <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer"
-                                    onClick={handleLogout}>
+                                        onClick={handleLogout}>
                                         Sair
                                     </li>
                                 </ul>
@@ -183,11 +219,12 @@ const Chat = () => {
                     {messages.length === 0 && (
                         <div className="text-center p-6 rounded-lg font-sans backdrop-blur-sm bg-black/40 text-white shadow-lg">
                             <h2 className="text-3xl font-bold">
-                                Bem-vindo(a) à{" "}
+                                Bem-vindo(a){username && ` ${username}`} à{" "}
                                 <span className="bg-gradient-to-r from-angola-yellow to-angola-red text-transparent bg-clip-text">
-                  AngoIA
-                </span>
+    AngoIA
+  </span>
                             </h2>
+
                             <p className="text-xl mt-4">
                                 Seu guia especialista sobre <span className="font-semibold">Angola</span>.
                             </p>

@@ -5,6 +5,7 @@ import './index.css';
 import { Analytics } from '@vercel/analytics/react';
 import Login from "./pages/LoginPage.jsx";
 import Register from "./pages/RegisterPage.jsx";
+import AboutUs from "./pages/AbouUs.jsx";
 
 const Chat = lazy(() => import('./pages/Chat.jsx'));
 
@@ -29,6 +30,7 @@ const App = () => (
                     <Route path="/chat" element={<Chat />} />
                     <Route path="/login" element={<Login/>}/>
                     <Route path="/registar" element={<Register/>}/>
+                    <Route path="/angoia" element={<AboutUs/>}/>
                     {/* outras rotas aqui */}
                 </Routes>
             </Suspense>

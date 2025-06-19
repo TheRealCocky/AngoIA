@@ -17,6 +17,8 @@ module.exports = {
         'secondary-brand': '#DC2626', // Exemplo de um vermelho para ação
         'text-dark': '#2D3748', // Para textos escuros
         'bg-light': '#F3F4F6', // Para fundos claros
+        'angoia-deep-red': '#d90429',     // novo nome para o antigo 'angola-red'
+        'angoia-gold-yellow': '#ffb703',  // novo nome para o antigo 'angola-yellow'
       },
       fontFamily: {
         // Se você quiser uma fonte específica que remeta à cultura angolana
