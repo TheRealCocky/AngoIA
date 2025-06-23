@@ -49,7 +49,7 @@ const handleChat = async (req, res) => {
         });
     }
 
-    // Tenta autenticar o usuário via token
+    // Autenticar via token
     const authHeader = req.headers.authorization;
     if (authHeader?.startsWith('Bearer ')) {
         try {
@@ -78,7 +78,6 @@ const handleChat = async (req, res) => {
     try {
         let historico = [];
 
-        // Busca até 3 conversas anteriores do usuário
         if (req.user?.id) {
             historico = await Conversation.find({ user: req.user.id })
                 .sort({ createdAt: -1 })
@@ -88,75 +87,82 @@ const handleChat = async (req, res) => {
         const prompt = construirPrompt(message, historico);
         const resposta = await getGeminiResponse(prompt);
 
+        // Tratamento para quando a API Gemini falha ou está sobrecarregada
+        if (!resposta || resposta.includes('Erro') || resposta.includes('não consegui')) {
+            return res.status(200).json({
+                resposta: '😔 O sistema está sobrecarregado no momento. Tenta novamente dentro de alguns minutos.',
+                _id: null,
+                likes: [],
+                dislikes: []
+            });
+        }
+
         const isCurta = message.trim().split(/\s+/).length <= 3;
         const respostaRuim = !resposta || resposta.includes('Erro') || resposta.includes('não consegui');
 
-        let novaConversa = null;
+        // Se usuário não estiver logado, apenas retorna a resposta
+        if (!req.user) {
+            return res.status(200).json({
+                resposta,
+                _id: null,
+                likes: [],
+                dislikes: []
+            });
+        }
 
-        // Sempre salva a mensagem do usuário
+        // Armazenar apenas se for usuário autenticado
         const userMessage = await ChatMessage.create({
             sender: 'user',
-            user: req.user?._id || null,
+            user: req.user._id,
             text: message
         });
 
-        // Salva a resposta do bot referenciando a do usuário
         const botMessage = await ChatMessage.create({
             sender: 'bot',
             text: resposta,
             replyTo: userMessage._id
         });
 
-        // Se logado, tenta salvar como conversa completa
-        if (req.user?.id) {
-            const limite = new Date(Date.now() - 3 * 86400000);
-            const jaExiste = await Conversation.findOne({
+        const limite = new Date(Date.now() - 3 * 86400000);
+        const jaExiste = await Conversation.findOne({
+            user: req.user.id,
+            question: { $regex: new RegExp(`^${message.trim()}$`, 'i') },
+            createdAt: { $gte: limite }
+        });
+
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+        const countHoje = await Conversation.countDocuments({
+            user: req.user.id,
+            createdAt: { $gte: hoje }
+        });
+
+        const atingiuLimite = countHoje >= 20;
+
+        let novaConversa = null;
+
+        if (!isCurta && !respostaRuim && !jaExiste && !atingiuLimite && shouldStoreMessage(message, resposta)) {
+            novaConversa = await Conversation.create({
                 user: req.user.id,
-                question: { $regex: new RegExp(`^${message.trim()}$`, 'i') },
-                createdAt: { $gte: limite }
+                question: message,
+                response: resposta
             });
 
-            const hoje = new Date();
-            hoje.setHours(0, 0, 0, 0);
-            const countHoje = await Conversation.countDocuments({
-                user: req.user.id,
-                createdAt: { $gte: hoje }
+            await InterestingQuestion.create({
+                usuarioId: req.user.id,
+                pergunta: message,
+                resposta,
+                tags: gerarTags(message),
+                status: 'nova',
+                data: new Date()
             });
-
-            const atingiuLimite = countHoje >= 20;
-
-            if (!isCurta && !respostaRuim && !jaExiste && !atingiuLimite && shouldStoreMessage(message, resposta)) {
-                novaConversa = await Conversation.create({
-                    user: req.user.id,
-                    question: message,
-                    response: resposta
-                });
-
-                await InterestingQuestion.create({
-                    usuarioId: req.user.id,
-                    pergunta: message,
-                    resposta,
-                    tags: gerarTags(message),
-                    status: 'nova',
-                    data: new Date()
-                });
-            }
-
-            if (novaConversa) {
-                return res.status(200).json({
-                    resposta,
-                    _id: novaConversa._id,
-                    likes: novaConversa.likes,
-                    dislikes: novaConversa.dislikes
-                });
-            }
         }
 
         return res.status(200).json({
             resposta,
-            _id: botMessage._id,
-            likes: [],
-            dislikes: []
+            _id: novaConversa?._id || botMessage._id,
+            likes: novaConversa?.likes || [],
+            dislikes: novaConversa?.dislikes || []
         });
 
     } catch (error) {
@@ -164,6 +170,7 @@ const handleChat = async (req, res) => {
         return res.status(500).json({ message: 'Erro ao gerar resposta.' });
     }
 };
+
 
 module.exports = { handleChat };
 
