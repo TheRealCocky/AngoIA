@@ -1,12 +1,14 @@
-// controllers/historyController.js
 const Conversation = require('../models/Conversation');
 
 const getUserHistory = async (req, res) => {
     try {
         const userId = req.user.id;
 
-        const history = await Conversation.find({ user: userId })
-            .sort({ createdAt: -1 }); // mais recentes primeiro
+        const history = await Conversation.find({
+            participants: userId  // ou 'user' se for apenas um autor
+        })
+            .sort({ createdAt: -1 })
+            .populate('participants', 'name email');
 
         res.status(200).json({ history });
 
@@ -17,3 +19,4 @@ const getUserHistory = async (req, res) => {
 };
 
 module.exports = { getUserHistory };
+

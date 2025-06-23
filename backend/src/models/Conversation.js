@@ -1,11 +1,27 @@
-// models/Conversation.js
 const mongoose = require('mongoose');
 
-const conversationSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    question: { type: String, required: true },
-    response: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now }
-});
+const ConversationSchema = new mongoose.Schema({
+    question: {
+        type: String,
+        required: true,
+    },
+    response: {
+        type: String,
+        required: true,
+    },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    likes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    dislikes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+}, { timestamps: true });
 
-module.exports = mongoose.model('Conversation', conversationSchema);
+module.exports = mongoose.model('Conversation', ConversationSchema);
+

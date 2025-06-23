@@ -15,6 +15,7 @@ import PrivacidadePage from "./settingsPages/PrivacidadePage.jsx";
 import LegalPage from "./settingsPages/LegalPage.jsx";
 import AjudaSuportePage from "./settingsPages/AjudaSuportePage.jsx";
 import SobrePage from "./settingsPages/SobrePage.jsx";
+import ChatShareView from "./pages/ChatShareView.jsx";
 
 const Chat = lazy(() => import('./pages/Chat.jsx'));
 
@@ -60,6 +61,7 @@ const App = () => {
                         <Route path="/seguranca-mb" element={<LegalPage/>}/>
                         <Route path="/ajuda-mb" element={<AjudaSuportePage/>}/>
                         <Route path="/angoia-mb" element={<SobrePage/>}/>
+                        <Route path="/chat/:id" element={<ChatShareView />} />
                         {/* outras rotas aqui */}
                     </Routes>
                 </Suspense>

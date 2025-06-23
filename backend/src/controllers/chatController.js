@@ -1,6 +1,10 @@
-// ✅ chatController.js
+// controllers/chatController.js
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Conversation = require('../models/Conversation');
+const InterestingQuestion = require('../models/InterestingQuestion');
+const { ChatMessage } = require('../models/ChatMessage');
+
 const { getGeminiResponse } = require('../utils/geminiClient');
 const { construirPrompt } = require('../utils/promptBuilder');
 const {
@@ -8,9 +12,8 @@ const {
     isInterestingEnough,
     shouldStoreMessage
 } = require('../utils/relevanceChecker');
-const Conversation = require('../models/Conversation');
-const InterestingQuestion = require('../models/InterestingQuestion');
 
+// Mapa para limitar perguntas de visitantes por IP
 const visitantes = new Map();
 
 const isSaudacaoSimples = (texto = '') => {
@@ -19,6 +22,18 @@ const isSaudacaoSimples = (texto = '') => {
         "como estás", "como vai", "tudo bem", "yá", "xê", "hello", "hi"
     ];
     return frases.includes(texto.trim().toLowerCase());
+};
+
+const gerarTags = (message) => {
+    const tags = [];
+    const texto = message.toLowerCase();
+
+    if (texto.includes("história") || texto.includes("independência")) tags.push("história");
+    if (texto.includes("cultura") || texto.includes("kuduro") || texto.includes("música")) tags.push("cultura");
+    if (texto.includes("província") || texto.includes("cidade") || texto.includes("luanda")) tags.push("geografia");
+    if (texto.includes("figura") || texto.includes("líder") || texto.includes("presidente")) tags.push("personalidade");
+
+    return tags.length > 0 ? tags : ["geral"];
 };
 
 const handleChat = async (req, res) => {
@@ -34,6 +49,7 @@ const handleChat = async (req, res) => {
         });
     }
 
+    // Tenta autenticar o usuário via token
     const authHeader = req.headers.authorization;
     if (authHeader?.startsWith('Bearer ')) {
         try {
@@ -47,6 +63,8 @@ const handleChat = async (req, res) => {
     }
 
     const ip = req.ip;
+
+    // Limite de perguntas para visitantes
     if (!req.user) {
         const count = visitantes.get(ip) || 0;
         if (count >= 5) {
@@ -59,6 +77,8 @@ const handleChat = async (req, res) => {
 
     try {
         let historico = [];
+
+        // Busca até 3 conversas anteriores do usuário
         if (req.user?.id) {
             historico = await Conversation.find({ user: req.user.id })
                 .sort({ createdAt: -1 })
@@ -71,52 +91,73 @@ const handleChat = async (req, res) => {
         const isCurta = message.trim().split(/\s+/).length <= 3;
         const respostaRuim = !resposta || resposta.includes('Erro') || resposta.includes('não consegui');
 
-        let jaExiste = false;
+        let novaConversa = null;
+
+        // Sempre salva a mensagem do usuário
+        const userMessage = await ChatMessage.create({
+            sender: 'user',
+            user: req.user?._id || null,
+            text: message
+        });
+
+        // Salva a resposta do bot referenciando a do usuário
+        const botMessage = await ChatMessage.create({
+            sender: 'bot',
+            text: resposta,
+            replyTo: userMessage._id
+        });
+
+        // Se logado, tenta salvar como conversa completa
         if (req.user?.id) {
             const limite = new Date(Date.now() - 3 * 86400000);
-            jaExiste = await Conversation.findOne({
+            const jaExiste = await Conversation.findOne({
                 user: req.user.id,
                 question: { $regex: new RegExp(`^${message.trim()}$`, 'i') },
                 createdAt: { $gte: limite }
             });
-        }
 
-        let atingiuLimite = false;
-        if (req.user?.id) {
             const hoje = new Date();
             hoje.setHours(0, 0, 0, 0);
             const countHoje = await Conversation.countDocuments({
                 user: req.user.id,
                 createdAt: { $gte: hoje }
             });
-            atingiuLimite = countHoje >= 20;
+
+            const atingiuLimite = countHoje >= 20;
+
+            if (!isCurta && !respostaRuim && !jaExiste && !atingiuLimite && shouldStoreMessage(message, resposta)) {
+                novaConversa = await Conversation.create({
+                    user: req.user.id,
+                    question: message,
+                    response: resposta
+                });
+
+                await InterestingQuestion.create({
+                    usuarioId: req.user.id,
+                    pergunta: message,
+                    resposta,
+                    tags: gerarTags(message),
+                    status: 'nova',
+                    data: new Date()
+                });
+            }
+
+            if (novaConversa) {
+                return res.status(200).json({
+                    resposta,
+                    _id: novaConversa._id,
+                    likes: novaConversa.likes,
+                    dislikes: novaConversa.dislikes
+                });
+            }
         }
 
-        if (
-            req.user?.id &&
-            !isCurta &&
-            !respostaRuim &&
-            !jaExiste &&
-            !atingiuLimite &&
-            shouldStoreMessage(message, resposta)
-        ) {
-            await Conversation.create({
-                user: req.user.id,
-                question: message,
-                response: resposta
-            });
-
-            await InterestingQuestion.create({
-                usuarioId: req.user.id,
-                pergunta: message,
-                resposta,
-                tags: gerarTags(message),
-                status: 'nova',
-                data: new Date()
-            });
-        }
-
-        return res.status(200).json({ resposta });
+        return res.status(200).json({
+            resposta,
+            _id: botMessage._id,
+            likes: [],
+            dislikes: []
+        });
 
     } catch (error) {
         console.error('Erro no chatController:', error.message);
@@ -124,19 +165,9 @@ const handleChat = async (req, res) => {
     }
 };
 
-const gerarTags = (message) => {
-    const tags = [];
-    const texto = message.toLowerCase();
-
-    if (texto.includes("história") || texto.includes("independência")) tags.push("história");
-    if (texto.includes("cultura") || texto.includes("kuduro") || texto.includes("música")) tags.push("cultura");
-    if (texto.includes("província") || texto.includes("cidade") || texto.includes("luanda")) tags.push("geografia");
-    if (texto.includes("figura") || texto.includes("líder") || texto.includes("presidente")) tags.push("personalidade");
-
-    return tags.length > 0 ? tags : ["geral"];
-};
-
 module.exports = { handleChat };
+
+
 
 
 

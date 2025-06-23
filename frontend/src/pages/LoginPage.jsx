@@ -79,6 +79,7 @@ export default function Login() {
           <input
               type="password"
               placeholder="Senha"
+
               className="
         w-full p-3 mb-6 rounded-xl bg-white/10 text-white
         placeholder-gray-300 border border-white/20
