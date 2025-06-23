@@ -85,17 +85,29 @@ const handleChat = async (req, res) => {
         }
 
         const prompt = construirPrompt(message, historico);
-        const resposta = await getGeminiResponse(prompt);
-
-        // Tratamento para quando a API Gemini falha ou está sobrecarregada
-        if (!resposta || resposta.includes('Erro') || resposta.includes('não consegui')) {
-            return res.status(200).json({
+        let resposta;
+        try {
+            resposta = await getGeminiResponse(prompt);
+        } catch (error) {
+            console.error('Erro ao chamar a API Gemini:', error.message);
+            return res.status(503).json({
                 resposta: '😔 O sistema está sobrecarregado no momento. Tenta novamente dentro de alguns minutos.',
                 _id: null,
                 likes: [],
                 dislikes: []
             });
         }
+
+// Verifica se a resposta está vazia ou nula
+        if (!resposta || typeof resposta !== 'string') {
+            return res.status(200).json({
+                resposta: '⚠️ Não foi possível obter uma resposta no momento.',
+                _id: null,
+                likes: [],
+                dislikes: []
+            });
+        }
+
 
         const isCurta = message.trim().split(/\s+/).length <= 3;
         const respostaRuim = !resposta || resposta.includes('Erro') || resposta.includes('não consegui');
