@@ -1,7 +1,7 @@
 // Importações de pacotes e componentes
 import React, { useEffect, useState, useRef } from 'react';
 import { LuSendHorizontal } from "react-icons/lu";
-import { Mic, AppWindow, X, Bell, Settings, House } from 'lucide-react';
+import { Mic, AppWindow, X, Bell, Settings, House, Plus,History,Star,CalendarClock,GraduationCap,CreditCard,EyeOff,CalendarDays  } from 'lucide-react';
 import { Link, useNavigate, useParams } from "react-router-dom"; // Adicionado useParams
 import { jwtDecode } from 'jwt-decode';
 import SettingsModalLg from "../components/SettingsModalLG.jsx";
@@ -65,6 +65,14 @@ const Chat = () => {
     const menuRef = useRef(null);
     const user = JSON.parse(localStorage.getItem("user"));
     const navigate = useNavigate();
+
+
+    const handleNewChat = () => {
+        setMessages([]);
+        localStorage.removeItem("chatMessages");
+        navigate("/");
+    };
+
 
     const handleNavigation = (path) => {
         navigate(path);
@@ -230,12 +238,19 @@ const Chat = () => {
     const handleOptionChange = (option) => setSelectedOption(option);
 
     const handleAudio = () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            alert("Reconhecimento de voz não suportado neste navegador. Use o Google Chrome.");
+            return;
+        }
+
         if (!recording) {
-            const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+            const recognition = new SpeechRecognition();
             recognition.lang = 'pt-PT';
             recognition.maxResults = 10;
 
-            recognition.onresult = event => {
+            recognition.onresult = (event) => {
                 const transcript = event.results[0][0].transcript;
                 setInput(transcript);
             };
@@ -249,17 +264,69 @@ const Chat = () => {
         }
     };
 
+
+
+
+
+
     if (fullScreen) {
         return (
             <div className="fixed top-0 left-0 w-full h-full bg-white p-4 overflow-y-auto z-50">
                 <button onClick={handleFullScreen} className="absolute top-2 right-4 text-gray-500 p-2 rounded-full"><X /></button>
                 <div className="mt-2"><Link to="/mobile"><Settings /></Link></div>
                 <div className="flex flex-col justify-start items-start mt-5 space-y-4 text-lg font-semibold">
-                    <div className="flex items-center space-x-2"><House /><p>Home</p></div>
-                    <div className="flex items-center space-x-2"><Bell /><Link to="/planos">Planos</Link></div>
-                    <div className="flex items-center space-x-2"><Bell /><p>Anónimos</p></div>
+                    <ul className="w-full space-y-2 text-sm">
+                        <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2"
+                        onClick={handleNewChat}
+                        >
+                            <Plus size={14} className="text-gray-700" />
+                            <span className="text-gray-800">Novo chat</span>
+                        </li>
+
+                        <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2">
+                            <History size={14} className="text-gray-700" />
+                            <Link to="/historico" className="text-gray-800">Histórico</Link>
+                        </li>
+
+                        <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2">
+                            <EyeOff size={14} className="text-gray-700" />
+                            <Link to="/anonimo" className="text-gray-800">Anônimo</Link>
+                        </li>
+
+                        <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2">
+                            <CreditCard size={14} className="text-gray-700" />
+                            <Link to="/planos" className="text-gray-800">Planos</Link>
+                        </li>
+
+                        <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2">
+                            <CalendarClock size={14} className="text-gray-700" />
+                            <Link to="/agendar" className="text-gray-800">Agendar pergunta</Link>
+                        </li>
+
+                        <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2">
+                            <Star size={14} className="text-gray-700" />
+                            <Link to="/favoritos" className="text-gray-800">Favoritos</Link>
+                        </li>
+
+                        <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2">
+                            <CalendarDays size={14} className="text-gray-700" />
+                            <Link to="/calendario" className="text-gray-800">Calendário de sessões</Link>
+                        </li>
+
+                        <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2">
+                            <GraduationCap size={14} className="text-gray-700" />
+                            <Link to="/estudo" className="text-gray-800">Modo Estudo</Link>
+                        </li>
+                    </ul>
+
+                    <footer className="w-full text-center mt-10">
+    <span className="text-xs text-gray-400">
+      © {new Date().getFullYear()} AngoIA
+    </span>
+                    </footer>
                 </div>
-                <div className="border-t-2 mt-4"><p className="font-semibold mt-2">Histórico</p></div>
+
+
             </div>
         );
     }
@@ -289,13 +356,58 @@ const Chat = () => {
                                 <h2 className="text-xl p-2 rounded-md hover:bg-gray-200 cursor-pointer font-semibold">AngoIA</h2>
                                 <button onClick={handleSettingsLG} className="text-black p-2 rounded-full"><Settings size={20} /></button>
                                 <button className="text-black p-2 rounded-full" onClick={abrirSidebar}><X size={20} /></button>
+                                {/*Menu sidebar desktop*/}
                             </div>
                             <ul className="space-y-2">
-                                <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer font-semibold"><Link to="/">Home</Link></li>
-                                <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer font-semibold"><Link to="/planos">Planos</Link></li>
-                                <li className="hover:bg-gray-100 px-2 py-1 rounded cursor-pointer font-semibold"><Link to="/pagina3">Anónimo</Link></li>
+                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2"
+                                    onClick={handleNewChat}
+                                >
+                                    <Plus size={14} className="text-gray-700" />
+                                    <span className="text-sm text-gray-800">Novo chat</span>
+                                </li>
+
+                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
+                                    <History size={14} className="text-gray-700" />
+                                    <Link to="/planos" className="text-sm text-gray-800">Histórico</Link>
+                                </li>
+
+                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
+                                    <EyeOff size={14} className="text-gray-700" />
+                                    <Link to="/pagina3" className="text-sm text-gray-800">Anônimo</Link>
+                                </li>
+                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
+                                    <CreditCard size={14} className="text-gray-700" />
+                                    <Link to="/planos" className="text-sm text-gray-800">Planos</Link>
+                                </li>
+                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
+                                    <CalendarClock size={14} className="text-gray-700" />
+                                    <Link to="/pagina3" className="text-sm text-gray-800">Angedar pergunta</Link>
+                                </li>
+                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
+                                    <Star size={14} className="text-gray-700" />
+                                    <Link to="/pagina3" className="text-sm text-gray-800">Favoritos</Link>
+                                </li>
+                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
+                                    < CalendarDays size={14} className="text-gray-700" />
+                                    <Link to="/pagina3" className="text-sm text-gray-800">Calendário de sessões</Link>
+                                </li>
+                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
+                                    <GraduationCap size={14} className="text-gray-700" />
+                                    <Link to="/pagina3" className="text-sm text-gray-800">Modo Estudo</Link>
+                                </li>
+
+
                             </ul>
+
+
+                            <footer className="w-full text-center mt-[230px]">
+  <span className="text-xs text-gray-400">
+    © {new Date().getFullYear()} AngoIA
+  </span>
+                            </footer>
+
                         </div>
+
                     )}
                     <div className="relative inline-block" ref={menuRef}>
                         {!user && (
@@ -357,22 +469,26 @@ const Chat = () => {
                             rows={1}
                             className="w-full pr-12 pl-4 pt-3 pb-[68px] rounded-xl bg-[#2b2b2b] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-angola-yellow border border-[#444] resize-none overflow-hidden disabled:opacity-50"
                         />
-                        <button
-                            onClick={handleSendMessage}
-                            className="absolute right-2 top-20 transform -translate-y-1/2 bg-[#3d3d3d] text-white p-2 rounded-full hover:bg-[#555]"
-                            disabled={!input.trim() || loading}
-                            aria-label="Enviar mensagem"
-                        >
-                            <LuSendHorizontal size={26} />
-                        </button>
-                        <button
-                            onClick={handleAudio}
-                            className="absolute right-20 top-[2.3rem] transform translate-y-1/2 bg-[#3d3d3d] text-white p-2 rounded-full hover:bg-[#555]"
-                            disabled={loading}
-                            aria-label="Enviar mensagem de áudio"
-                        >
-                            <Mic size={26} />
-                        </button>
+                        {input.trim() ? (
+                            <button
+                                onClick={handleSendMessage}
+                                className="absolute right-2 top-20 transform -translate-y-1/2 bg-[#3d3d3d] text-white p-2 rounded-full hover:bg-[#555]"
+                                disabled={loading}
+                                aria-label="Enviar mensagem"
+                            >
+                                <LuSendHorizontal size={26} />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={handleAudio}
+                                className="absolute right-2 top-20 transform -translate-y-1/2 bg-[#3d3d3d] text-white p-2 rounded-full hover:bg-[#555]"
+                                disabled={loading}
+                                aria-label="Enviar mensagem de áudio"
+                            >
+                                <Mic size={26} />
+                            </button>
+                        )}
+
                     </div>
                 </div>
             </div>
@@ -386,6 +502,7 @@ const Chat = () => {
         </div>
     );
 };
+
 
 export default Chat;
 
