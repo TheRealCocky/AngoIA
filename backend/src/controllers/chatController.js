@@ -101,11 +101,13 @@ const handleChat = async (req, res) => {
 // Verifica se a resposta está vazia ou nula
         if (!resposta || typeof resposta !== 'string') {
             return res.status(200).json({
-                resposta: '⚠️ Não foi possível obter uma resposta no momento.',
-                _id: null,
-                likes: [],
-                dislikes: []
+                resposta,
+                _id: novaConversa?._id || botMessage._id,
+                likes: novaConversa?.likes || [],
+                dislikes: novaConversa?.dislikes || [],
+                favorites: novaConversa?.favorites || []
             });
+
         }
 
 

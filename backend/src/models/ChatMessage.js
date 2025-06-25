@@ -31,6 +31,10 @@ const ChatMessageSchema = new mongoose.Schema(
         dislikes: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
+        }],
+        favorites: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
         }]
     },
     { timestamps: true }

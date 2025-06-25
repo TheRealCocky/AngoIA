@@ -99,6 +99,62 @@ router.post('/:id/undislike', auth, validateId, async (req, res) => {
 });
 
 /**
+ * POST /:id/favorite
+ * Adiciona a mensagem aos favoritos do usuário
+ */
+router.post('/:id/favorite', auth, validateId, async (req, res) => {
+    const userId = req.user.id;
+    try {
+        const updated = await ChatMessage.findByIdAndUpdate(
+            req.params.id,
+            { $addToSet: { favorites: userId } },
+            { new: true }
+        );
+        if (!updated) return res.status(404).json({ error: "Mensagem não encontrada." });
+        res.status(200).json(updated);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
+ * POST /:id/unfavorite
+ * Remove a mensagem dos favoritos do usuário
+ */
+router.post('/:id/unfavorite', auth, validateId, async (req, res) => {
+    const userId = req.user.id;
+    try {
+        const updated = await ChatMessage.findByIdAndUpdate(
+            req.params.id,
+            { $pull: { favorites: userId } },
+            { new: true }
+        );
+        if (!updated) return res.status(404).json({ error: "Mensagem não encontrada." });
+        res.status(200).json(updated);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
+ * GET /favorites
+ * Lista todas as mensagens favoritedas pelo usuário logado
+ */
+router.get('/favorites', auth, async (req, res) => {
+    try {
+        const mensagens = await ChatMessage.find({ favorites: req.user.id });
+        res.status(200).json(mensagens);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+
+
+
+
+/**
  * GET /:id
  * Recupera uma mensagem específica com likes/dislikes populados
  */
@@ -139,6 +195,8 @@ router.get('/bot/all', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+
 
 module.exports = router;
 

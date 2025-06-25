@@ -42,7 +42,7 @@ mongoose.connect(process.env.MONGO_URI)
         app.listen(port, () => {
             console.log(`🚀 AngoIA backend rodando em:`);
             console.log(`🌐 Local:    http://localhost:${port}`);
-            console.log(`🌍 Público:  ${baseUrl}`);
+            console.log(`🌍 Público:  https://angoia-backend.onrender.com`);
         });
     })
     .catch((err) => {

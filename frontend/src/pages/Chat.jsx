@@ -2,13 +2,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { LuSendHorizontal } from "react-icons/lu";
 import { Mic, AppWindow, X, Bell, Settings, House } from 'lucide-react';
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom"; // Adicionado useParams
 import { jwtDecode } from 'jwt-decode';
 import SettingsModalLg from "../components/SettingsModalLG.jsx";
 import SettingsModalSm from "../components/SettingsModalSm.jsx";
 import LikeDislikeButtons from "../components/LikeDislikeButtons";
 
-// Função que faz requisição ao backend
+// Função que faz requisição ao backend para mensagem nova
 const callBackendAPI = async (message) => {
     const baseURL = window.location.hostname === 'localhost'
         ? 'http://localhost:3000'
@@ -49,12 +49,12 @@ const callBackendAPI = async (message) => {
 
 // Componente principal do chat
 const Chat = () => {
+    const { id } = useParams(); // Captura o ID da URL
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [username, setUsername] = useState('');
-
     const [recording, setRecording] = useState(false);
     const [sidebarAberto, setSidebarAberto] = useState(false);
     const [fullScreen, setFullScreen] = useState(false);
@@ -71,6 +71,7 @@ const Chat = () => {
         setTimeout(() => setIsOpen(false), 100);
     };
 
+    // Decodifica o token para pegar o nome do usuário
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
@@ -83,12 +84,14 @@ const Chat = () => {
         }
     }, []);
 
+    // Mostra modal de login se evento for emitido
     useEffect(() => {
         const openLogin = () => setShowLoginModal(true);
         window.addEventListener("open-login-modal", openLogin);
         return () => window.removeEventListener("open-login-modal", openLogin);
     }, []);
 
+    // Fecha menu se clicar fora
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -104,6 +107,7 @@ const Chat = () => {
         setIsOpen((prev) => !prev);
     };
 
+    // Função de envio de mensagem
     const handleSendMessage = async () => {
         if (input.trim() === '') return;
 
@@ -149,18 +153,69 @@ const Chat = () => {
         }
     };
 
+    // Carrega mensagens anteriores do localStorage
     useEffect(() => {
         const savedMessages = localStorage.getItem("chatMessages");
-        if (savedMessages) {
+        if (savedMessages && !id) {
             setMessages(JSON.parse(savedMessages));
         }
-    }, []);
+    }, [id]);
 
+    // Salva mensagens no localStorage
     useEffect(() => {
-        if (messages.length > 0) {
+        if (messages.length > 0 && !id) {
             localStorage.setItem("chatMessages", JSON.stringify(messages));
         }
-    }, [messages]);
+    }, [messages, id]);
+
+    // Busca mensagem pelo ID da URL
+    useEffect(() => {
+        const fetchMessageById = async () => {
+            if (!id) return;
+
+            const baseURL = window.location.hostname === 'localhost'
+                ? 'http://localhost:3000'
+                : 'https://angoia-backend.onrender.com';
+
+            try {
+                const response = await fetch(`${baseURL}/api/chat-messages/${id}`);
+                const data = await response.json();
+
+                if (response.ok && data && data.text) {
+                    const botMessage = {
+                        sender: 'bot',
+                        text: data.text, // ← agora usa text
+                        _id: data._id,
+                        likes: data.likes || [],
+                        dislikes: data.dislikes || [],
+                        favorites: data.favorites || []
+                    };
+
+
+                    setMessages([botMessage]);
+                } else {
+                    setMessages([{
+                        sender: 'bot',
+                        text: '❌ Mensagem não encontrada ou inválida.',
+                        _id: null,
+                        likes: [],
+                        dislikes: []
+                    }]);
+                }
+            } catch (error) {
+                console.error("Erro ao buscar mensagem por ID:", error);
+                setMessages([{
+                    sender: 'bot',
+                    text: '❌ Erro ao carregar a mensagem.',
+                    _id: null,
+                    likes: [],
+                    dislikes: []
+                }]);
+            }
+        };
+
+        fetchMessageById();
+    }, [id]);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -263,27 +318,22 @@ const Chat = () => {
                             <p className="text-base text-gray-200 mt-2">Pronto para explorar as maravilhas?</p>
                         </div>
                     )}
-                    {messages.map((msg, index) => {
-                        console.log('msg:', msg); // Veja o que vem aqui
-
-                        return (
-                            <div key={index} className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"}`}>
-                                <div className={`p-3 rounded-xl max-w-[75%] ${msg.sender === "user" ? "bg-angola-red text-white" : "bg-yellow-300 text-black"}`}>
-                                    {msg.text}
-                                </div>
-                                {msg.sender === 'bot' && msg._id && (
-                                    <LikeDislikeButtons
-                                        messageId={msg._id}
-                                        initialLikes={msg.likes}
-                                        initialDislikes={msg.dislikes}
-                                        isFromVisitor={!user}
-                                        text={msg.text}
-                                    />
-
-                                )}
+                    {messages.map((msg, index) => (
+                        <div key={index} className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"}`}>
+                            <div className={`p-3 rounded-xl max-w-[75%] ${msg.sender === "user" ? "bg-angola-red text-white" : "bg-yellow-300 text-black"}`}>
+                                {msg.text}
                             </div>
-                        );
-                    })}
+                            {msg.sender === 'bot' && msg._id && (
+                                <LikeDislikeButtons
+                                    messageId={msg._id}
+                                    initialLikes={msg.likes}
+                                    initialDislikes={msg.dislikes}
+                                    isFromVisitor={!user}
+                                    text={msg.text}
+                                />
+                            )}
+                        </div>
+                    ))}
 
                     {loading && (
                         <div className="flex justify-start">
@@ -336,6 +386,7 @@ const Chat = () => {
 };
 
 export default Chat;
+
 
 
 

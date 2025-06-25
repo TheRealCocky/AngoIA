@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
-import { FaThumbsUp, FaThumbsDown, FaCopy, FaShareAlt } from 'react-icons/fa';
+import { FaThumbsUp, FaThumbsDown, FaCopy, FaShareAlt, FaStar } from 'react-icons/fa';
 
 const LikeDislikeButtons = ({ messageId, text, onUpdate }) => {
     const token = localStorage.getItem('token');
+    const [favorited, setFavorited] = useState(false);
     const [liked, setLiked] = useState(false);
     const [disliked, setDisliked] = useState(false);
-    const [copied, setCopied] = useState(false); // controle da notificação
+    const [copied, setCopied] = useState(false);
+    const [shared, setShared] = useState(false);
+
+    const BaseURL = window.location.hostname === 'localhost'
+        ? 'http://localhost:3000'
+        : 'https://angoia-backend.onrender.com';
 
     const handleReaction = async (reaction) => {
-        const BaseURL = window.location.hostname === 'localhost'
-            ? 'http://localhost:3000'
-            : 'https://angoia-backend.onrender.com';
-
         try {
             const res = await fetch(`${BaseURL}/api/chat-messages/${messageId}/${reaction}`, {
                 method: 'POST',
@@ -42,9 +44,32 @@ const LikeDislikeButtons = ({ messageId, text, onUpdate }) => {
             }
 
             if (onUpdate) onUpdate(data);
-
         } catch (err) {
             console.error('Erro HTTP:', err.message);
+        }
+    };
+
+    const handleFavorite = async () => {
+        try {
+            const res = await fetch(`${BaseURL}/api/chat-messages/${messageId}/${favorited ? 'unfavorite' : 'favorite'}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || 'Erro ao favoritar');
+            }
+
+            const data = await res.json();
+            setFavorited(!favorited);
+            if (onUpdate) onUpdate(data);
+
+        } catch (err) {
+            console.error('Erro ao favoritar:', err.message);
         }
     };
 
@@ -53,25 +78,28 @@ const LikeDislikeButtons = ({ messageId, text, onUpdate }) => {
         try {
             await navigator.clipboard.writeText(text);
             setCopied(true);
-            setTimeout(() => setCopied(false), 2000); // esconde após 2s
+            setTimeout(() => setCopied(false), 2000);
         } catch (err) {
             console.error('Erro ao copiar:', err.message);
         }
     };
 
     const handleShare = async () => {
-        if (navigator.share) {
-            try {
+        const url = `${window.location.origin}/chat/${messageId}`;
+        try {
+            if (navigator.share) {
                 await navigator.share({
                     title: 'AngoIA',
                     text: text,
-                    url: window.location.href,
+                    url: url,
                 });
-            } catch (err) {
-                console.error('Erro ao partilhar:', err.message);
+            } else {
+                await navigator.clipboard.writeText(url);
+                setShared(true);
+                setTimeout(() => setShared(false), 2000);
             }
-        } else {
-            alert('A partilha não é suportada neste navegador.');
+        } catch (err) {
+            console.error('Erro ao partilhar:', err.message);
         }
     };
 
@@ -86,12 +114,12 @@ const LikeDislikeButtons = ({ messageId, text, onUpdate }) => {
         boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
         border: '1px solid rgba(255,255,255,0.2)',
         transition: 'all 0.3s ease',
-        position: 'relative'
+        position: 'relative',
     };
 
     const activeStyle = {
         backgroundColor: 'white',
-        color: 'rgb(250 204 21 / var(--tw-text-opacity, 1))',
+        color: 'rgb(250 204 21)',
         fontWeight: 'bold',
     };
 
@@ -101,12 +129,29 @@ const LikeDislikeButtons = ({ messageId, text, onUpdate }) => {
         fontWeight: 'bold',
     };
 
+    const badgeStyle = {
+        position: 'absolute',
+        top: '-24px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        background: '#4ade80',
+        color: '#fff',
+        padding: '2px 6px',
+        borderRadius: '6px',
+        fontSize: '0.75rem',
+        whiteSpace: 'nowrap',
+        boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+    };
+
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <div
                 style={{ ...iconStyle, ...(liked ? activeStyle : {}) }}
                 title="Like"
                 onClick={() => handleReaction(liked ? 'unlike' : 'like')}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && handleReaction(liked ? 'unlike' : 'like')}
             >
                 <FaThumbsUp size={15} />
             </div>
@@ -115,39 +160,54 @@ const LikeDislikeButtons = ({ messageId, text, onUpdate }) => {
                 style={{ ...iconStyle, ...(disliked ? activeDislikeStyle : {}) }}
                 title="Dislike"
                 onClick={() => handleReaction(disliked ? 'undislike' : 'dislike')}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && handleReaction(disliked ? 'undislike' : 'dislike')}
             >
                 <FaThumbsDown size={15} />
             </div>
 
-            <div style={iconStyle} title="Copiar" onClick={handleCopy}>
-                <FaCopy size={15} />
-                {copied && (
-                    <span style={{
-                        position: 'absolute',
-                        top: '-24px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        background: '#4ade80',
-                        color: '#fff',
-                        padding: '2px 6px',
-                        borderRadius: '6px',
-                        fontSize: '0.75rem',
-                        whiteSpace: 'nowrap',
-                        boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
-                    }}>
-                        Copiado ✓
-                    </span>
-                )}
+            <div
+                style={{ ...iconStyle, ...(favorited ? activeStyle : {}) }}
+                title="Favoritar"
+                onClick={handleFavorite}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && handleFavorite()}
+            >
+                <FaStar size={15} />
+                {favorited && <span style={{ ...badgeStyle, background: '#facc15' }}>Favoritado ✓</span>}
             </div>
 
-            <div style={iconStyle} title="Partilhar" onClick={handleShare}>
+            <div
+                style={iconStyle}
+                title="Copiar texto"
+                onClick={handleCopy}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && handleCopy()}
+            >
+                <FaCopy size={15} />
+                {copied && <span style={badgeStyle}>Copiado ✓</span>}
+            </div>
+
+            <div
+                style={iconStyle}
+                title="Partilhar"
+                onClick={handleShare}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && handleShare()}
+            >
                 <FaShareAlt size={15} />
+                {shared && <span style={{ ...badgeStyle, background: '#60a5fa' }}>Link copiado ✓</span>}
             </div>
         </div>
     );
 };
 
 export default LikeDislikeButtons;
+
 
 
 
