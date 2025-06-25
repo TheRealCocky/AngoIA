@@ -328,9 +328,11 @@ const Chat = () => {
                                     messageId={msg._id}
                                     initialLikes={msg.likes}
                                     initialDislikes={msg.dislikes}
+                                    initialFavorites={msg.favorites} // ← ADICIONEI O FAVORITO
                                     isFromVisitor={!user}
                                     text={msg.text}
                                 />
+
                             )}
                         </div>
                     ))}
