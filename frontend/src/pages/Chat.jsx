@@ -7,7 +7,7 @@ import { jwtDecode } from 'jwt-decode';
 import SettingsModalLg from "../components/SettingsModalLG.jsx";
 import SettingsModalSm from "../components/SettingsModalSm.jsx";
 import LikeDislikeButtons from "../components/LikeDislikeButtons";
-
+import ModalHistories from '../components/ModalHistories.jsx';
 // Função que faz requisição ao backend para mensagem nova
 const callBackendAPI = async (message) => {
     const baseURL = window.location.hostname === 'localhost'
@@ -61,11 +61,28 @@ const Chat = () => {
     const [settingsLG, setSettingsLG] = useState(false);
     const [selectedOption, setSelectedOption] = useState("opcao1");
     const [showLoginModal, setShowLoginModal] = useState(false);
+    const [showHistories, setShowHistories] = useState(false);
+    const messageRefs = useRef({});
+
+//histico de mensagem
+    const scrollToMessage = (id) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            console.warn('Mensagem não encontrada no DOM:', id);
+        }
+    };
+
+
+
+
+    //fim do historico de mensagem
+
 
     const menuRef = useRef(null);
     const user = JSON.parse(localStorage.getItem("user"));
     const navigate = useNavigate();
-
 
     const handleNewChat = () => {
         setMessages([]);
@@ -178,7 +195,7 @@ const Chat = () => {
 
     // Busca mensagem pelo ID da URL
     useEffect(() => {
-        const fetchMessageById = async () => {
+        const fetchMessagesById = async () => {
             if (!id) return;
 
             const baseURL = window.location.hostname === 'localhost'
@@ -186,44 +203,40 @@ const Chat = () => {
                 : 'https://angoia-backend.onrender.com';
 
             try {
-                const response = await fetch(`${baseURL}/api/chat-messages/${id}`);
-                const data = await response.json();
+                const res = await fetch(`${baseURL}/api/chat-messages/all`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
 
-                if (response.ok && data && data.text) {
-                    const botMessage = {
-                        sender: 'bot',
-                        text: data.text, // ← agora usa text
-                        _id: data._id,
-                        likes: data.likes || [],
-                        dislikes: data.dislikes || [],
-                        favorites: data.favorites || []
-                    };
+                const allMessages = await res.json();
 
-
-                    setMessages([botMessage]);
-                } else {
-                    setMessages([{
-                        sender: 'bot',
-                        text: '❌ Mensagem não encontrada ou inválida.',
-                        _id: null,
-                        likes: [],
-                        dislikes: []
-                    }]);
+                // 🚨 Verifica se é array antes de filtrar
+                if (!Array.isArray(allMessages)) {
+                    console.warn('Resposta inválida da API:', allMessages);
+                    return;
                 }
-            } catch (error) {
-                console.error("Erro ao buscar mensagem por ID:", error);
-                setMessages([{
-                    sender: 'bot',
-                    text: '❌ Erro ao carregar a mensagem.',
-                    _id: null,
-                    likes: [],
-                    dislikes: []
-                }]);
+
+                const pergunta = allMessages.find(msg => msg._id === id);
+                const resposta = allMessages.find(msg => msg.replyTo === id);
+
+                const ordenado = [];
+
+                if (pergunta) ordenado.push(pergunta);
+                if (resposta) ordenado.push(resposta);
+
+                setMessages(ordenado);
+
+            } catch (err) {
+                console.error("Erro ao buscar mensagens:", err);
             }
         };
 
-        fetchMessageById();
+
+        fetchMessagesById();
     }, [id]);
+
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -236,6 +249,7 @@ const Chat = () => {
     const handleSettingsLG = () => setSettingsLG(!settingsLG);
     const toggleSettings = () => setSettingsLG(prev => !prev);
     const handleOptionChange = (option) => setSelectedOption(option);
+
 
     const handleAudio = () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -366,10 +380,27 @@ const Chat = () => {
                                     <span className="text-sm text-gray-800">Novo chat</span>
                                 </li>
 
-                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
+                                <li
+                                    className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2"
+                                    onClick={() => setShowHistories(true)}
+                                >
                                     <History size={14} className="text-gray-700" />
-                                    <Link to="/planos" className="text-sm text-gray-800">Histórico</Link>
+                                    <span className="text-sm text-gray-800">Histórico</span>
                                 </li>
+
+                                {/* Modal do Histórico */}
+                                {showHistories && (
+                                    <ModalHistories
+                                        onClose={() => setShowHistories(false)}
+                                        onSelect={(messageId) => {
+                                            navigate(`/chat/${messageId}`);       // <- MUITO IMPORTANTE: muda a URL
+                                            setShowHistories(false);              // Fecha o modal
+                                            setTimeout(() => scrollToMessage(messageId), 300); // Scroll suave após render
+                                        }}
+                                    />
+                                )}
+
+
 
                                 <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
                                     <EyeOff size={14} className="text-gray-700" />
