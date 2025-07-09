@@ -498,7 +498,7 @@ const Chat = () => {
                             onKeyDown={handleKeyPress}
                             placeholder="Digite sua pergunta sobre Angola..."
                             rows={1}
-                            className="w-full pr-12 pl-4 pt-3 pb-[68px] rounded-xl bg-[#2b2b2b] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-angola-yellow border border-[#444] resize-none overflow-hidden disabled:opacity-50"
+                            className="w-full pr-12 pl-4 pt-3 pb-[68px] rounded-xl bg-[#2b2b2b] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-angola-yellow border border-[#444] resize-none overflow-hidden disabled:opacity-50 "
                         />
                         {input.trim() ? (
                             <button

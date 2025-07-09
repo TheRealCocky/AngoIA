@@ -134,8 +134,12 @@ const handleChat = async (req, res) => {
         const botMessage = await ChatMessage.create({
             sender: 'bot',
             text: resposta,
-            replyTo: userMessage._id
+            replyTo: userMessage._id  // 👈 ESTE CAMPO É ESSENCIAL
         });
+
+
+
+
 
         const limite = new Date(Date.now() - 3 * 86400000);
         const jaExiste = await Conversation.findOne({

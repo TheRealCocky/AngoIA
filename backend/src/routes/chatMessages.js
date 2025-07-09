@@ -1,5 +1,3 @@
-// routes/chatMessages.js
-
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
@@ -15,6 +13,86 @@ const validateId = (req, res, next) => {
     }
     next();
 };
+
+/* ---------------------------- ROTAS DE LISTAGEM ---------------------------- */
+
+/**
+ * GET /all
+ * Retorna todas as mensagens da coleção
+ // routes/chatMessages.js ou onde definires a rota /all*/
+ router.get('/all', auth, async (req, res) => {
+
+try {
+    const userId = req.user._id || req.user.id; // ✅ usa o que estiver disponível
+
+    // 1. Buscar mensagens do usuário autenticado
+    const userMessages = await ChatMessage.find({
+        sender: 'user',
+        user: userId
+    });
+
+    const userMessageIds = userMessages.map(msg => msg._id);
+
+    // 2. Buscar mensagens do bot que respondem a essas mensagens
+    const botMessages = await ChatMessage.find({
+        sender: 'bot',
+        replyTo: { $in: userMessageIds }
+    });
+
+    // 3. Combinar e ordenar
+    const allMessages = [...userMessages, ...botMessages].sort(
+        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+    );
+
+    res.status(200).json(allMessages);
+} catch (err) {
+    console.error('Erro ao buscar histórico:', err);
+    res.status(500).json({ error: 'Erro ao buscar histórico.' });
+}
+});
+
+
+
+/**
+ * GET /favorites
+ * Lista todas as mensagens favoritedas pelo usuário logado
+ */
+router.get('/favorites', auth, async (req, res) => {
+    try {
+        const mensagens = await ChatMessage.find({ favorites: req.user.id });
+        res.status(200).json(mensagens);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
+ * GET /user
+ * Recupera todas as mensagens enviadas pelo usuário logado
+ */
+router.get('/user', auth, async (req, res) => {
+    try {
+        const mensagens = await ChatMessage.find({ sender: req.user.id });
+        res.status(200).json(mensagens);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
+ * GET /bot/all
+ * Recupera todas as mensagens enviadas pelo bot
+ */
+router.get('/bot/all', async (req, res) => {
+    try {
+        const mensagens = await ChatMessage.find({ sender: 'bot' }).sort({ createdAt: -1 });
+        res.status(200).json(mensagens);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/* ---------------------------- ROTAS DE AÇÕES ---------------------------- */
 
 /**
  * POST /:id/like
@@ -136,23 +214,7 @@ router.post('/:id/unfavorite', auth, validateId, async (req, res) => {
     }
 });
 
-/**
- * GET /favorites
- * Lista todas as mensagens favoritedas pelo usuário logado
- */
-router.get('/favorites', auth, async (req, res) => {
-    try {
-        const mensagens = await ChatMessage.find({ favorites: req.user.id });
-        res.status(200).json(mensagens);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-
-
-
-
+/* ---------------------------- ROTA FINAL (DINÂMICA) ---------------------------- */
 
 /**
  * GET /:id
@@ -170,33 +232,6 @@ router.get('/:id', validateId, async (req, res) => {
     }
 });
 
-/**
- * GET /user
- * Recupera todas as mensagens enviadas pelo usuário logado
- */
-router.get('/user', auth, async (req, res) => {
-    try {
-        const mensagens = await ChatMessage.find({ sender: req.user.id });
-        res.status(200).json(mensagens);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-/**
- * GET /bot/all
- * Recupera todas as mensagens enviadas pelo bot
- */
-router.get('/bot/all', async (req, res) => {
-    try {
-        const mensagens = await ChatMessage.find({ sender: 'bot' }).sort({ createdAt: -1 });
-        res.status(200).json(mensagens);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-
-
 module.exports = router;
+
 
