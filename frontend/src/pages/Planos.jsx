@@ -87,10 +87,14 @@ const Planos = () => {
     };
 
     return (
-        <div className="min-h-screen w-full px-4 py-10  bg-center  "
+        <div className="min-h-screen w-full px-4 py-10  "
              style={{
                  backgroundImage: `url(${samacaca})`,
-                 filter: 'brightness(0.6)',
+                 backgroundAttachment: 'fixed',      // faz o fundo ficar estático
+                 backgroundSize: 'cover',            // cobre toda a área
+                 backgroundRepeat: 'no-repeat',      // não repete
+                 backgroundPosition: 'center',       // centraliza a imagem
+                 filter: 'brightness(0.6)',          // escurece um pouco
 
              }}
         >
