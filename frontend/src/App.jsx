@@ -16,6 +16,7 @@ import LegalPage from "./settingsPages/LegalPage.jsx";
 import AjudaSuportePage from "./settingsPages/AjudaSuportePage.jsx";
 import SobrePage from "./settingsPages/SobrePage.jsx";
 import ChatShareView from "./pages/ChatShareView.jsx";
+import HistoricoMobile from "./components/HistoricoMobile.jsx";
 
 const Chat = lazy(() => import('./pages/Chat.jsx'));
 
@@ -64,6 +65,7 @@ const App = () => {
                         <Route path="/ajuda-mb" element={<AjudaSuportePage/>}/>
                         <Route path="/angoia-mb" element={<SobrePage/>}/>
                         <Route path="/chat/:id" element={<ChatShareView />} />
+                        <Route path="/historico-mobile" element={<HistoricoMobile/>}/>
                         {/* outras rotas aqui */}
                     </Routes>
                 </Suspense>

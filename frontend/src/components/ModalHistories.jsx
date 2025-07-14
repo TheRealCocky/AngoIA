@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {X} from "lucide-react";
 
 const ModalHistories = ({ onClose }) => {
     const [mensagens, setMensagens] = useState([]);
@@ -53,7 +54,7 @@ const ModalHistories = ({ onClose }) => {
             <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-bold">Histórico de Conversas</h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-lg font-bold">×</button>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-lg font-bold"> <X size={20} /></button>
                 </div>
 
                 <input

@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { LuSendHorizontal } from "react-icons/lu";
 import { Mic, AppWindow, X, Bell, Settings, House, Plus,History,Star,CalendarClock,GraduationCap,CreditCard,EyeOff,CalendarDays  } from 'lucide-react';
-import { Link, useNavigate, useParams } from "react-router-dom"; // Adicionado useParams
+import { Link, useNavigate, useParams } from "react-router-dom"; // comunicação com o a url
 import { jwtDecode } from 'jwt-decode';
 import SettingsModalLg from "../components/SettingsModalLG.jsx";
 import SettingsModalSm from "../components/SettingsModalSm.jsx";
@@ -178,6 +178,11 @@ const Chat = () => {
         }
     };
 
+    //chamar a pagina planos
+    const  handleplanos=()=>{
+        navigate('/planos')
+    }
+
     // Carrega mensagens anteriores do localStorage
     useEffect(() => {
         const savedMessages = localStorage.getItem("chatMessages");
@@ -250,7 +255,7 @@ const Chat = () => {
     const toggleSettings = () => setSettingsLG(prev => !prev);
     const handleOptionChange = (option) => setSelectedOption(option);
 
-
+//Enviar mensagem por audio
     const handleAudio = () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -299,7 +304,7 @@ const Chat = () => {
 
                         <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2">
                             <History size={14} className="text-gray-700" />
-                            <Link to="/historico" className="text-gray-800">Histórico</Link>
+                            <Link to="/historico-mobile" className="text-gray-800">Histórico</Link>
                         </li>
 
                         <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2">
@@ -368,8 +373,8 @@ const Chat = () => {
                         <div className="fixed top-0 left-0 h-screen w-60 bg-white shadow-lg p-4 transition-transform duration-300">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-xl p-2 rounded-md hover:bg-gray-200 cursor-pointer font-semibold">AngoIA</h2>
-                                <button onClick={handleSettingsLG} className="text-black p-2 rounded-full"><Settings size={20} /></button>
-                                <button className="text-black p-2 rounded-full" onClick={abrirSidebar}><X size={20} /></button>
+                                <button onClick={handleSettingsLG} className="text-black p-2 rounded-full hover:bg-gray-200 "><Settings size={20} /></button>
+                                <button className="text-gray-700 p-2 rounded-full hover:text-black" onClick={abrirSidebar}><X size={20} /></button>
                                 {/*Menu sidebar desktop*/}
                             </div>
                             <ul className="space-y-2">
@@ -406,9 +411,11 @@ const Chat = () => {
                                     <EyeOff size={14} className="text-gray-700" />
                                     <Link to="/pagina3" className="text-sm text-gray-800">Anônimo</Link>
                                 </li>
-                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
+
+                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 " onClick={handleplanos}>
                                     <CreditCard size={14} className="text-gray-700" />
-                                    <Link to="/planos" className="text-sm text-gray-800">Planos</Link>
+                                    <span  className="text-sm text-gray-800">Planos</span>
+
                                 </li>
                                 <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
                                     <CalendarClock size={14} className="text-gray-700" />

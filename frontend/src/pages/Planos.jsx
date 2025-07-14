@@ -3,6 +3,7 @@ import { Button } from "../components/button.jsx";
 import { Card, CardContent } from "../components/card.jsx";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import BackHome from "../components/BackHome.jsx";
+import samacaca from "../imagens/samacaca.webp";
 
 const planos = [
     {
@@ -86,7 +87,14 @@ const Planos = () => {
     };
 
     return (
-        <div className="min-h-screen w-full px-4 py-10 bg-g">
+        <div className="min-h-screen w-full px-4 py-10  bg-center  "
+             style={{
+                 backgroundImage: `url(${samacaca})`,
+                 filter: 'brightness(0.6)',
+
+             }}
+        >
+
             <BackHome />
             <h1 className="text-3xl sm:text-4xl font-bold text-center text-yellow-500 mb-10 mt-10">
                 Escolha seu plano AngoIA
