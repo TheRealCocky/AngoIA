@@ -8,6 +8,7 @@ import SettingsModalLg from "../components/SettingsModalLG.jsx";
 import SettingsModalSm from "../components/SettingsModalSm.jsx";
 import LikeDislikeButtons from "../components/LikeDislikeButtons";
 import ModalHistories from '../components/ModalHistories.jsx';
+import ModalFavoritos from '../components/ModalFavoritos.jsx';
 // Função que faz requisição ao backend para mensagem nova
 const callBackendAPI = async (message) => {
     const baseURL = window.location.hostname === 'localhost'
@@ -63,6 +64,7 @@ const Chat = () => {
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [showHistories, setShowHistories] = useState(false);
     const messageRefs = useRef({});
+    const [showFavoritos, setShowFavoritos] = useState(false);
 
 //histico de mensagem
     const scrollToMessage = (id) => {
@@ -254,6 +256,7 @@ const Chat = () => {
     const handleSettingsLG = () => setSettingsLG(!settingsLG);
     const toggleSettings = () => setSettingsLG(prev => !prev);
     const handleOptionChange = (option) => setSelectedOption(option);
+    const handleFavoritos = () => setShowFavoritos(!showFavoritos);
 
 //Enviar mensagem por audio
     const handleAudio = () => {
@@ -421,13 +424,33 @@ const Chat = () => {
                                     <CalendarClock size={14} className="text-gray-700" />
                                     <Link to="/pagina3" className="text-sm text-gray-800">Angedar pergunta</Link>
                                 </li>
-                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
+                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 "
+                                onClick={()=>setShowFavoritos(true)}
+                                >
                                     <Star size={14} className="text-gray-700" />
-                                    <Link to="/pagina3" className="text-sm text-gray-800">Favoritos</Link>
+                                    <span  className="text-sm text-gray-800">Favoritos</span>
                                 </li>
+
+                                {/* Modal Favoritos */}
+                                {showFavoritos && (
+                                    <ModalFavoritos
+                                        onClose={() => setShowFavoritos(false)}
+                                        onSelect={(messageId) => {
+                                            navigate(`/chat/${messageId}`);
+                                            setShowFavoritos(false);
+                                            setTimeout(() => scrollToMessage(messageId), 300); // opcional
+                                        }}
+                                    />
+                                )}
+
+
+
+
+
+
                                 <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
                                     < CalendarDays size={14} className="text-gray-700" />
-                                    <Link to="/pagina3" className="text-sm text-gray-800">Calendário de sessões</Link>
+                                    <span className="text-sm text-gray-800">Calendário de sessões</span>
                                 </li>
                                 <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
                                     <GraduationCap size={14} className="text-gray-700" />
@@ -474,14 +497,18 @@ const Chat = () => {
                                 {msg.text}
                             </div>
                             {msg.sender === 'bot' && msg._id && (
+                                <div className="mt-4">
                                 <LikeDislikeButtons
+
                                     messageId={msg._id}
                                     initialLikes={msg.likes}
                                     initialDislikes={msg.dislikes}
                                     initialFavorites={msg.favorites} // ← ADICIONEI O FAVORITO
                                     isFromVisitor={!user}
                                     text={msg.text}
+
                                 />
+                                    </div>
 
                             )}
                         </div>

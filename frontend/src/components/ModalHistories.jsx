@@ -51,21 +51,31 @@ const ModalHistories = ({ onClose }) => {
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold">Histórico de Conversas</h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-lg font-bold"> <X size={20} /></button>
+            <div className="bg-white rounded-xl shadow-lg w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+
+                {/* Cabeçalho fixo */}
+                <div className="sticky top-0 z-10 bg-white px-6 pt-6 pb-4 border-b border-gray-200">
+                    <div className="flex justify-between items-center mb-2">
+                        <h2 className="text-xl font-bold">Histórico de Conversas</h2>
+                        <button
+                            onClick={onClose}
+                            className="text-gray-500 hover:text-gray-800 text-lg font-bold"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
+
+                    <input
+                        type="text"
+                        placeholder="Pesquisar pergunta..."
+                        className="w-full p-2 border border-gray-300 rounded"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
                 </div>
 
-                <input
-                    type="text"
-                    placeholder="Pesquisar pergunta..."
-                    className="w-full mb-4 p-2 border border-gray-300 rounded"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-
-                <div className="space-y-4">
+                {/* Conteúdo rolável */}
+                <div className="overflow-y-auto px-6 py-4 space-y-4">
                     {loading ? (
                         <p className="text-center text-gray-500">Carregando...</p>
                     ) : mensagensFiltradas.length === 0 ? (
@@ -77,7 +87,7 @@ const ModalHistories = ({ onClose }) => {
                                 className="p-3 border rounded hover:bg-gray-100 cursor-pointer transition"
                                 onClick={() => handleClick(msg._id)}
                             >
-                                <p>🧍 <strong>{msg.text}</strong></p>
+                                <p><strong>{msg.text}</strong></p>
                             </div>
                         ))
                     )}

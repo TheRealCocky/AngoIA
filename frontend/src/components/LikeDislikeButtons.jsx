@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaThumbsUp, FaThumbsDown, FaCopy, FaShareAlt, FaStar } from 'react-icons/fa';
 
 const LikeDislikeButtons = ({ messageId, text, onUpdate }) => {
@@ -12,6 +12,31 @@ const LikeDislikeButtons = ({ messageId, text, onUpdate }) => {
     const BaseURL = window.location.hostname === 'localhost'
         ? 'http://localhost:3000'
         : 'https://angoia-backend.onrender.com';
+
+    useEffect(() => {
+        const fetchReactionStatus = async () => {
+            try {
+                const res = await fetch(`${BaseURL}/api/chat-messages/${messageId}/status`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                if (!res.ok) throw new Error('Erro ao obter status da mensagem');
+
+                const { liked, disliked, favorited } = await res.json();
+                setLiked(liked);
+                setDisliked(disliked);
+                setFavorited(favorited);
+            } catch (err) {
+                console.error('Erro ao buscar status da mensagem:', err.message);
+            }
+        };
+
+        if (messageId && token) {
+            fetchReactionStatus();
+        }
+    }, [messageId, token]);
 
     const handleReaction = async (reaction) => {
         try {
@@ -29,7 +54,6 @@ const LikeDislikeButtons = ({ messageId, text, onUpdate }) => {
             }
 
             const data = await res.json();
-            console.log('Reação enviada com sucesso:', data);
 
             if (reaction === 'like') {
                 setLiked(true);
@@ -67,7 +91,6 @@ const LikeDislikeButtons = ({ messageId, text, onUpdate }) => {
             const data = await res.json();
             setFavorited(!favorited);
             if (onUpdate) onUpdate(data);
-
         } catch (err) {
             console.error('Erro ao favoritar:', err.message);
         }
@@ -207,6 +230,7 @@ const LikeDislikeButtons = ({ messageId, text, onUpdate }) => {
 };
 
 export default LikeDislikeButtons;
+
 
 
 

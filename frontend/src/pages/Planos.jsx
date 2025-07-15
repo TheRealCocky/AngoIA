@@ -94,7 +94,7 @@ const Planos = () => {
                  backgroundSize: 'cover',            // cobre toda a área
                  backgroundRepeat: 'no-repeat',      // não repete
                  backgroundPosition: 'center',       // centraliza a imagem
-                 filter: 'brightness(0.6)',          // escurece um pouco
+                 filter: 'brightness(0.9)',          // escurece um pouco
 
              }}
         >

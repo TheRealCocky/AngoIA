@@ -232,6 +232,30 @@ router.get('/:id', validateId, async (req, res) => {
     }
 });
 
+/**
+ * GET /:id/status
+ * Retorna se o usuário autenticado deu like, dislike ou favoritou essa mensagem
+ */
+router.get('/:id/status', auth, validateId, async (req, res) => {
+    const userId = req.user.id;
+    try {
+        const message = await ChatMessage.findById(req.params.id);
+
+        if (!message) {
+            return res.status(404).json({ error: "Mensagem não encontrada." });
+        }
+
+        const liked = message.likes.includes(userId);
+        const disliked = message.dislikes.includes(userId);
+        const favorited = message.favorites.includes(userId);
+
+        return res.status(200).json({ liked, disliked, favorited });
+    } catch (err) {
+        console.error('Erro ao buscar status da mensagem:', err);
+        return res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
+});
+
 module.exports = router;
 
 
