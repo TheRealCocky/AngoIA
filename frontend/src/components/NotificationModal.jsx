@@ -16,8 +16,10 @@ const NotificationModal = ({ onClose }) => {
 
                 const decoded = jwtDecode(token);
                 const userId = decoded?.id;
-
-                const res = await axios.get('http://localhost:3000/api/chat-messages/all', {
+               const BASE_URL = window.location.hostname === 'localhost'
+                ? 'http://localhost:3000'
+                   : 'https://angoia-backend.onrender.com';
+                const res = await axios.get(`${BASE_URL}/api/chat-messages/all`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
