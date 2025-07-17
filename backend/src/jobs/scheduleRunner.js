@@ -8,82 +8,84 @@ const { construirPrompt } = require('../utils/promptBuilder');
 const { gerarTags } = require('../controllers/chatController');
 const InterestingQuestion = require('../models/InterestingQuestion');
 
-// Tarefa cron: roda a cada minuto
+// Executa de minuto em minuto
 cron.schedule('* * * * *', async () => {
     const now = new Date();
 
-    // Busca todas as perguntas pendentes cuja data já passou
-    const perguntas = await ScheduledQuestion.find({
-        scheduledAt: { $lte: now },
-        status: 'pending'
-    });
+    try {
+        const pendentes = await ScheduledQuestion.find({
+            scheduledAt: { $lte: now },
+            status: 'pending',
+        });
 
-    for (const agendada of perguntas) {
-        try {
-            const user = await User.findById(agendada.userId);
-            if (!user) throw new Error('Usuário não encontrado');
+        if (pendentes.length === 0) return;
 
-            // Buscar últimas 3 conversas do usuário para contexto
-            const historico = await Conversation.find({ user: user._id })
-                .sort({ createdAt: -1 })
-                .limit(3);
+        console.log(`📌 Encontradas ${pendentes.length} perguntas agendadas.`);
 
-            // Construir o prompt e obter resposta da IA
-            const prompt = construirPrompt(agendada.question, historico);
-            const resposta = await getGeminiResponse(prompt);
+        // Processar todas as perguntas em paralelo controlado
+        await Promise.all(pendentes.map(async (agendada) => {
+            try {
+                const user = await User.findById(agendada.userId);
+                if (!user) throw new Error('Usuário não encontrado');
 
-            // Salvar mensagens no histórico de chat
-            const userMsg = await ChatMessage.create({
-                sender: 'user',
-                user: user._id,
-                text: agendada.question
-            });
+                const historico = await Conversation.find({ user: user._id })
+                    .sort({ createdAt: -1 })
+                    .limit(3);
 
-            const botMsg = await ChatMessage.create({
-                sender: 'bot',
-                text: resposta,
-                replyTo: userMsg._id
-            });
+                const prompt = construirPrompt(agendada.question, historico);
+                const resposta = await getGeminiResponse(prompt);
 
-            // Salvar a conversa para notificação
-            await Conversation.create({
-                user: user._id,
-                question: agendada.question,
-                response: resposta,
-                status: 'sent'
-            });
+                const userMsg = await ChatMessage.create({
+                    sender: 'user',
+                    user: user._id,
+                    text: agendada.question,
+                });
 
-            // Marcar como pergunta interessante
-            await InterestingQuestion.create({
-                usuarioId: user._id,
-                pergunta: agendada.question,
-                resposta,
-                tags: gerarTags(agendada.question),
-                status: 'nova',
-                data: new Date()
-            });
+                const botMsg = await ChatMessage.create({
+                    sender: 'bot',
+                    text: resposta,
+                    replyTo: userMsg._id,
+                });
 
-            // Marcar como enviada ou preparar próxima repetição
-            if (agendada.repeat !== 'none') {
-                agendada.scheduledAt = getNextDate(agendada.scheduledAt, agendada.repeat);
-                agendada.status = 'pending';
-            } else {
-                agendada.status = 'sent';
+                await Conversation.create({
+                    user: user._id,
+                    question: agendada.question,
+                    response: resposta,
+                    status: 'sent',
+                    createdAt: new Date(),
+                });
+
+                await InterestingQuestion.create({
+                    usuarioId: user._id,
+                    pergunta: agendada.question,
+                    resposta,
+                    tags: gerarTags(agendada.question),
+                    status: 'nova',
+                    data: new Date(),
+                });
+
+                if (agendada.repeat !== 'none') {
+                    agendada.scheduledAt = getNextDate(agendada.scheduledAt, agendada.repeat);
+                    agendada.status = 'pending';
+                } else {
+                    agendada.status = 'sent';
+                }
+
+                await agendada.save();
+
+                console.log(`✅ Respondida: "${agendada.question}"`);
+            } catch (err) {
+                console.error('❌ Erro ao processar pergunta:', err.message);
+                agendada.status = 'failed';
+                await agendada.save();
             }
-
-            await agendada.save();
-
-            console.log(`✅ Pergunta agendada respondida: "${agendada.question}"`);
-
-        } catch (err) {
-            console.error('❌ Erro ao processar pergunta agendada:', err.message);
-            agendada.status = 'failed';
-            await agendada.save();
-        }
+        }));
+    } catch (err) {
+        console.error('❌ Erro geral no cron job:', err.message);
     }
 });
 
-// Função auxiliar para calcular próxima data de repetição
+// Função auxiliar para repetição
 function getNextDate(date, repeat) {
     const d = new Date(date);
     if (repeat === 'daily') d.setDate(d.getDate() + 1);
@@ -91,3 +93,4 @@ function getNextDate(date, repeat) {
     if (repeat === 'monthly') d.setMonth(d.getMonth() + 1);
     return d;
 }
+
