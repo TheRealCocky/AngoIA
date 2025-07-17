@@ -190,7 +190,7 @@ const handleChat = async (req, res) => {
 };
 
 
-module.exports = { handleChat };
+module.exports = { handleChat ,gerarTags};
 
 
 

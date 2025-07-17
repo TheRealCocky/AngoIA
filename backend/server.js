@@ -12,7 +12,7 @@ const historyRoutes = require('./src/routes/historyRoutes');
 const conversationRoutes = require('./src/routes/conversationRoute');
 const messageRoutes = require('./src/routes/messageRoutes');
 const chatMessagesRoutes = require('./src/routes/chatMessages');
-
+const scheduleRoutes = require('./src/routes/scheduleRoutes');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -30,7 +30,7 @@ app.use('/api/history', historyRoutes);
 app.use('/api/conversations', conversationRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/chat-messages', chatMessagesRoutes);
-
+app.use('/api/schedule', scheduleRoutes);
 
 // app.use('/api/feedback', feedbackRoutes); // descomentável se for usar
 
@@ -38,6 +38,9 @@ app.use('/api/chat-messages', chatMessagesRoutes);
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         console.log('✅ Conectado ao MongoDB');
+
+        // 👉 Inicializar o job de agendamento
+        require('./src/jobs/scheduleRunner');
 
         app.listen(port, () => {
             console.log(`🚀 AngoIA backend rodando em:`);
@@ -48,6 +51,7 @@ mongoose.connect(process.env.MONGO_URI)
     .catch((err) => {
         console.error('❌ Erro ao conectar ao MongoDB:', err.message);
     });
+
 
 //http://localhost:3000/api/auth/register
 //http://localhost:3000/api/chat

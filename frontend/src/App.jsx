@@ -17,6 +17,10 @@ import AjudaSuportePage from "./settingsPages/AjudaSuportePage.jsx";
 import SobrePage from "./settingsPages/SobrePage.jsx";
 import ChatShareView from "./pages/ChatShareView.jsx";
 import HistoricoMobile from "./components/HistoricoMobile.jsx";
+import FavoritoMobile from "./components/FavoritoMobile.jsx";
+import NotificationMobile from "./components/MotificationMobile.jsx";
+import ScheduleMobile from "./components/ScheduleMobile.jsx";
+
 
 const Chat = lazy(() => import('./pages/Chat.jsx'));
 
@@ -66,6 +70,11 @@ const App = () => {
                         <Route path="/angoia-mb" element={<SobrePage/>}/>
                         <Route path="/chat/:id" element={<ChatShareView />} />
                         <Route path="/historico-mobile" element={<HistoricoMobile/>}/>
+                        <Route path="/favoritos" element={<FavoritoMobile/>}/>
+                        <Route path="/notificacao-mobile" element={<NotificationMobile/>}/>
+                        <Route path="/agendar" element={<ScheduleMobile/>} />
+
+
                         {/* outras rotas aqui */}
                     </Routes>
                 </Suspense>

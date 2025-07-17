@@ -1,7 +1,8 @@
 // Importações de pacotes e componentes
 import React, { useEffect, useState, useRef } from 'react';
 import { LuSendHorizontal } from "react-icons/lu";
-import { Mic, AppWindow, X, Bell, Settings, House, Plus,History,Star,CalendarClock,GraduationCap,CreditCard,EyeOff,CalendarDays  } from 'lucide-react';
+import axios from 'axios';
+import { Mic, AppWindow, X,BellRing, Bell, Settings, House, Plus,History,Star,CalendarClock,GraduationCap,CreditCard,EyeOff,CalendarDays  } from 'lucide-react';
 import { Link, useNavigate, useParams } from "react-router-dom"; // comunicação com o a url
 import { jwtDecode } from 'jwt-decode';
 import SettingsModalLg from "../components/SettingsModalLG.jsx";
@@ -9,6 +10,9 @@ import SettingsModalSm from "../components/SettingsModalSm.jsx";
 import LikeDislikeButtons from "../components/LikeDislikeButtons";
 import ModalHistories from '../components/ModalHistories.jsx';
 import ModalFavoritos from '../components/ModalFavoritos.jsx';
+import ModalScheudle from  '../components/ScheduleModal.jsx';
+import ModalNotificacoes from '../components/NotificationModal.jsx';
+import NotificationModal from '../components/NotificationModal';
 // Função que faz requisição ao backend para mensagem nova
 const callBackendAPI = async (message) => {
     const baseURL = window.location.hostname === 'localhost'
@@ -65,7 +69,9 @@ const Chat = () => {
     const [showHistories, setShowHistories] = useState(false);
     const messageRefs = useRef({});
     const [showFavoritos, setShowFavoritos] = useState(false);
-
+    const [showSchedule, setShowSchedule] = useState(false);
+    const [notiCount, setNotiCount] = useState(0);
+    const [showNotificacoes, setShowNotificacoes] = useState(false);
 //histico de mensagem
     const scrollToMessage = (id) => {
         const element = document.getElementById(id);
@@ -258,6 +264,38 @@ const Chat = () => {
     const handleOptionChange = (option) => setSelectedOption(option);
     const handleFavoritos = () => setShowFavoritos(!showFavoritos);
 
+    useEffect(() => {
+        const fetchContador = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await axios.get('http://localhost:3000/api/conversations', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                const now = new Date();
+                const oneMinuteAgo = new Date(now.getTime() - 60000);
+
+                const recentes = res.data.filter((conv) => {
+                    const created = new Date(conv.createdAt);
+                    return created >= oneMinuteAgo && created <= now;
+                });
+
+                setNotiCount(recentes.length);
+            } catch (err) {
+                console.error('Erro ao contar notificações:', err);
+            }
+        };
+
+        fetchContador();
+        const interval = setInterval(fetchContador, 10000);
+        return () => clearInterval(interval);
+    }, []);
+
+
+
+
+
+
 //Enviar mensagem por audio
     const handleAudio = () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -288,7 +326,16 @@ const Chat = () => {
 
 
 
-
+    const handleNotificacoesClick = () => {
+        if (window.innerWidth < 768) {
+            // Se for tela pequena (mobile)
+            navigate('/notificacao-mobile');
+        } else {
+            // Em telas grandes, mostra o modal
+            setShowNotificacoes(true);
+            setNotiCount(0); // zera o contador
+        }
+    };
 
 
     if (fullScreen) {
@@ -324,6 +371,24 @@ const Chat = () => {
                             <CalendarClock size={14} className="text-gray-700" />
                             <Link to="/agendar" className="text-gray-800">Agendar pergunta</Link>
                         </li>
+
+                        <li
+                            onClick={handleNotificacoesClick}
+                            className="relative hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2"
+                        >
+                            <BellRing size={16} className="text-gray-700" />
+                            <span className="text-sm text-gray-800">Notificações</span>
+
+                            {notiCount > 0 && (
+                                <span className="absolute top-1 right-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full">
+      {notiCount}
+    </span>
+                            )}
+                        </li>
+
+                        {showNotificacoes && (
+                            <ModalNotificacoes onClose={() => setShowNotificacoes(false)} />
+                        )}
 
                         <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2">
                             <Star size={14} className="text-gray-700" />
@@ -420,10 +485,45 @@ const Chat = () => {
                                     <span  className="text-sm text-gray-800">Planos</span>
 
                                 </li>
-                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
+                                <li
+                                    className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2"
+                                    onClick={() => setShowSchedule(true)}
+                                >
                                     <CalendarClock size={14} className="text-gray-700" />
-                                    <Link to="/pagina3" className="text-sm text-gray-800">Angedar pergunta</Link>
+                                    <span className="text-sm text-gray-800">Agendar pergunta</span>
                                 </li>
+                                {showSchedule &&(
+                                <ModalScheudle
+                                    isOpen={showSchedule}
+                                    onClose={() => setShowSchedule(false)}
+                                />
+                                )}
+
+
+                                <li
+                                    onClick={() => {
+                                        setShowNotificacoes(true);
+                                        setNotiCount(0); // zera o contador ao abrir
+                                    }}
+                                    className="relative hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2"
+                                >
+                                    <BellRing size={16} className="text-gray-700" />
+                                    <span className="text-sm text-gray-800">Notificações</span>
+
+                                    {notiCount > 0 && (
+                                        <span className="absolute top-1 right-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full">
+      {notiCount}
+    </span>
+                                    )}
+                                </li>
+
+                                {showNotificacoes && (
+                                    <ModalNotificacoes onClose={() => setShowNotificacoes(false)} />
+                                )}
+
+
+
+
                                 <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 "
                                 onClick={()=>setShowFavoritos(true)}
                                 >
