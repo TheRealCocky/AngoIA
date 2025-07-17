@@ -7,7 +7,9 @@ import { useNavigate } from 'react-router-dom';
 const  NotificationMobile = () => {
     const [notificacoes, setNotificacoes] = useState([]);
     const navigate = useNavigate();
-
+    const BASE_URL = window.location.hostname === 'localhost'
+        ? 'http://localhost:3000'
+        : 'https://angoia-backend.onrender.com';
     useEffect(() => {
         const fetchNotificacoes = async () => {
             const token = localStorage.getItem('token');
@@ -16,9 +18,7 @@ const  NotificationMobile = () => {
             try {
                 const decoded = jwtDecode(token);
                 const userId = decoded?.id;
-                const BASE_URL = window.location.hostname === 'localhost'
-                    ? 'http://localhost:3000'
-                    : 'https://angoia-backend.onrender.com';
+
 
                 const res = await axios.get(`${BASE_URL}/api/chat-messages/all`, {
                     headers: { Authorization: `Bearer ${token}` },

@@ -8,7 +8,10 @@ const ScheduleModal = ({ isOpen, onClose }) => {
     const [repeat, setRepeat] = useState('none');
     const [loading, setLoading] = useState(false);
     const [feedback, setFeedback] = useState('');
-
+    const BaseURL =
+        window.location.hostname === 'localhost'
+            ? 'http://localhost:3000'
+            : 'https://angoia-backend.onrender.com';
     const handleSubmit = async () => {
         if (!question || !scheduledAt) {
             setFeedback('Por favor, preencha todos os campos.');
@@ -18,10 +21,7 @@ const ScheduleModal = ({ isOpen, onClose }) => {
         setLoading(true);
         setFeedback('');
 
-        const BaseURL =
-            window.location.hostname === 'localhost'
-                ? 'http://localhost:3000'
-                : 'https://angoia-backend.onrender.com';
+
 
         try {
             const token = localStorage.getItem('token');
