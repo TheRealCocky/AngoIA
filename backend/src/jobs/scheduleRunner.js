@@ -39,18 +39,7 @@ cron.schedule('* * * * *', async () => {
                 const resposta = await getGeminiResponse(prompt);
                 console.log("✅ Resposta obtida da IA");
 
-                const userMsg = await ChatMessage.create({
-                    sender: 'user',
-                    user: user._id,
-                    text: agendada.question,
-                });
-
-                const botMsg = await ChatMessage.create({
-                    sender: 'bot',
-                    text: resposta,
-                    replyTo: userMsg._id,
-                });
-
+                // Criar a conversa primeiro
                 const conversa = await Conversation.create({
                     user: user._id,
                     question: agendada.question,
@@ -58,7 +47,21 @@ cron.schedule('* * * * *', async () => {
                     status: 'sent',
                     createdAt: new Date(),
                 });
-                console.log("💬 Conversa salva:", conversa._id);
+
+                // Salvar mensagens com referência ao chatId
+                const userMsg = await ChatMessage.create({
+                    sender: 'user',
+                    user: user._id,
+                    text: agendada.question,
+                    chatId: conversa._id,
+                });
+
+                const botMsg = await ChatMessage.create({
+                    sender: 'bot',
+                    text: resposta,
+                    replyTo: userMsg._id,
+                    chatId: conversa._id,
+                });
 
                 const interessante = await InterestingQuestion.create({
                     usuarioId: user._id,
@@ -68,9 +71,8 @@ cron.schedule('* * * * *', async () => {
                     status: 'nova',
                     data: new Date(),
                 });
-                console.log("✨ Interessante criada:", interessante._id);
 
-                // Agendamento
+                // Agendamento futuro
                 if (agendada.repeat !== 'none') {
                     agendada.scheduledAt = getNextDate(agendada.scheduledAt, agendada.repeat);
                     agendada.status = 'pending';
