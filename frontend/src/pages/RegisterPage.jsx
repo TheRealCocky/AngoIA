@@ -10,6 +10,7 @@ export default function Cadastro() {
   const [idioma, setIdioma] = useState('pt'); // default: português
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
+  const [loading, setLoading]= useState(false);
   const navigate = useNavigate();
 
 const baseURL= window.location.hostname==='localhost'
@@ -19,6 +20,7 @@ const baseURL= window.location.hostname==='localhost'
 
   const handleCadastro = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setErro('');
     setSucesso('');
 
@@ -52,6 +54,8 @@ const baseURL= window.location.hostname==='localhost'
 
     } catch (err) {
       setErro(err.message);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -120,7 +124,7 @@ const baseURL= window.location.hostname==='localhost'
               type="submit"
               className="w-full bg-angoia-gold-yellow hover:bg-yellow-500 text-black font-semibold py-3 rounded-lg transition shadow-md"
           >
-            Cadastrar
+            {loading ?'Carregando...':'Cadastrar'}
           </button>
         </form>
       </div>

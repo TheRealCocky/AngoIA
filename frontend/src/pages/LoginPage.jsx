@@ -7,6 +7,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [erro, setErro] = useState('');
   const navigate = useNavigate();
+  const [loading, setLoadingg]= useState(false);
 
 
   const baseURL= window.location.hostname==='localhost'
@@ -14,6 +15,7 @@ export default function Login() {
       : 'https://angoia-backend.onrender.com';
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoadingg(true);
     setErro('');
 
     try {
@@ -40,7 +42,10 @@ export default function Login() {
 
     } catch (err) {
       setErro(err.message);
+    } finally {
+    setLoadingg(false);
     }
+
   };
 
   return (
@@ -97,7 +102,8 @@ export default function Login() {
         font-semibold py-3 rounded-xl transition duration-200
       "
           >
-            Entrar
+            {loading ? 'carregando...' : 'Entrar'}
+
           </button>
 
           <div className="mt-4 text-center">

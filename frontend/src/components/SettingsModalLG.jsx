@@ -74,7 +74,7 @@ const SettingsModalLg = ({ isOpen, onClose, selectedOption, onOptionChange }) =>
                     </div>
 
                     <div className="text-xs text-gray-500 text-center mt-6">
-                        <span className="text-[11px] text-gray-400">© 2025 AngoIA</span>
+
                     </div>
                 </div>
 
