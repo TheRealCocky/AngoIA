@@ -20,6 +20,7 @@ import HistoricoMobile from "./components/HistoricoMobile.jsx";
 import FavoritoMobile from "./components/FavoritoMobile.jsx";
 import NotificationMobile from "./components/MotificationMobile.jsx";
 import ScheduleMobile from "./components/ScheduleMobile.jsx";
+import ScheduleCalendar from "./pages/ScheduleCalendar.jsx";
 
 
 const Chat = lazy(() => import('./pages/Chat.jsx'));
@@ -73,6 +74,7 @@ const App = () => {
                         <Route path="/favoritos" element={<FavoritoMobile/>}/>
                         <Route path="/notificacao-mobile" element={<NotificationMobile/>}/>
                         <Route path="/agendar" element={<ScheduleMobile/>} />
+                        <Route path="/calendario" element={<ScheduleCalendar />} />
 
 
                         {/* outras rotas aqui */}

@@ -13,6 +13,7 @@ import ModalFavoritos from '../components/ModalFavoritos.jsx';
 import ModalScheudle from  '../components/ScheduleModal.jsx';
 import ModalNotificacoes from '../components/NotificationModal.jsx';
 import NotificationModal from '../components/NotificationModal';
+import SessionCalendar from "../components/SessionCalendar.jsx";
 // Função que faz requisição ao backend para mensagem nova
 const callBackendAPI = async (message) => {
     const baseURL = window.location.hostname === 'localhost'
@@ -72,6 +73,7 @@ const Chat = () => {
     const [showSchedule, setShowSchedule] = useState(false);
     const [notiCount, setNotiCount] = useState(0);
     const [showNotificacoes, setShowNotificacoes] = useState(false);
+    const [modalCalendar , setModalCalendar] = useState(false);
 //histico de mensagem
     const scrollToMessage = (id) => {
         const element = document.getElementById(id);
@@ -548,10 +550,19 @@ const Chat = () => {
 
 
 
-                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
+                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 "
+                                    //onClick={() => setModalCalendar(true)}
+
+                                >
                                     < CalendarDays size={14} className="text-gray-700" />
-                                    <span className="text-sm text-gray-800">Calendário de sessões</span>
+                                    <Link to={"/calendario"} className="text-sm text-gray-800">Calendário de sessões</Link>
                                 </li>
+                                {/*{modalCalendar &&
+                                    (
+                                        <SessionCalendar
+                                        onClose={() => setModalCalendar(false)}
+                                        />
+                                    )}*/}
                                 <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
                                     <GraduationCap size={14} className="text-gray-700" />
                                     <Link to="/pagina3" className="text-sm text-gray-800">Modo Estudo</Link>
@@ -561,7 +572,7 @@ const Chat = () => {
                             </ul>
 
 
-                            <footer className="w-full text-center mt-[230px]">
+                            <footer className="w-full text-center mt-[100px]">
   <span className="text-xs text-gray-400">
     © {new Date().getFullYear()} AngoIA
   </span>

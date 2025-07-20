@@ -13,6 +13,7 @@ const conversationRoutes = require('./src/routes/conversationRoute');
 const messageRoutes = require('./src/routes/messageRoutes');
 const chatMessagesRoutes = require('./src/routes/chatMessages');
 const scheduleRoutes = require('./src/routes/scheduleRoutes');
+const sessionRoutes = require('./src/routes/sessionRoutes');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -31,6 +32,7 @@ app.use('/api/conversations', conversationRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/chat-messages', chatMessagesRoutes);
 app.use('/api/schedule', scheduleRoutes);
+app.use('/api/session', sessionRoutes);
 
 // app.use('/api/feedback', feedbackRoutes); // descomentável se for usar
 

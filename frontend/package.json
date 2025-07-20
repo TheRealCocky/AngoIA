@@ -10,6 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.18",
+    "@fullcalendar/daygrid": "^6.1.18",
+    "@fullcalendar/react": "^6.1.18",
     "@vercel/analytics": "^1.5.0",
     "axios": "^1.10.0",
     "bcryptjs": "^3.0.2",
