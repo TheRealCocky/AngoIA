@@ -404,7 +404,7 @@ const Chat = () => {
 
                         <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2">
                             <GraduationCap size={14} className="text-gray-700" />
-                            <Link to="/estudo" className="text-gray-800">Modo Estudo</Link>
+                            <Link to="/modoestudo" className="text-gray-800">Modo Estudo</Link>
                         </li>
                     </ul>
 
@@ -565,7 +565,7 @@ const Chat = () => {
                                     )}*/}
                                 <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
                                     <GraduationCap size={14} className="text-gray-700" />
-                                    <Link to="/pagina3" className="text-sm text-gray-800">Modo Estudo</Link>
+                                    <Link to="/modoestudo" className="text-sm text-gray-800">Modo Estudo</Link>
                                 </li>
 
 
