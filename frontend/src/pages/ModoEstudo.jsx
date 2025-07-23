@@ -7,7 +7,10 @@ import BackHome from "../components/BackHome.jsx";
 const somAcerto = new Audio("/sons/correto.mp3");
 const somErro = new Audio("/sons/erro.mp3");
 
-const perguntasMock = [
+function embaralhar(array) {
+    return [...array].sort(() => Math.random() - 0.5);
+}
+const perguntasMock =embaralhar( [
     {
         pergunta: "Qual é a moeda oficial de Angola?",
         opcoes: ["Kwanza", "Euro", "Dólar", "Metical"],
@@ -115,7 +118,7 @@ const perguntasMock = [
         correta: 0,
         explicacao: "Luanda é a capital e a maior cidade de Angola."
     }
-];
+]);
 
 export default function ModoEstudo() {
     const [modoRevisao, setModoRevisao] = useState(false);
