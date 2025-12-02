@@ -2,9 +2,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { LuSendHorizontal } from "react-icons/lu";
 import axios from 'axios';
-import { Mic, AppWindow, X,BellRing, Bell, Settings, House, Plus,History,Star,CalendarClock,GraduationCap,CreditCard,EyeOff,CalendarDays  } from 'lucide-react';
-import { Link, useNavigate, useParams } from "react-router-dom"; // comunicação com o a url
-import { jwtDecode } from 'jwt-decode';
+import { Mic, AppWindow, X, BellRing, Bell, Settings, House, Plus, History, Star, CalendarClock, GraduationCap, CreditCard, EyeOff, CalendarDays } from 'lucide-react';
+import { Link, useNavigate, useParams } from "react-router-dom"; // comunicação com a url
+import jwtDecode from 'jwt-decode';
 import SettingsModalLg from "../components/SettingsModalLG.jsx";
 import SettingsModalSm from "../components/SettingsModalSm.jsx";
 import LikeDislikeButtons from "../components/LikeDislikeButtons";
@@ -14,12 +14,14 @@ import ModalScheudle from  '../components/ScheduleModal.jsx';
 import ModalNotificacoes from '../components/NotificationModal.jsx';
 import NotificationModal from '../components/NotificationModal';
 import SessionCalendar from "../components/SessionCalendar.jsx";
+
+// 🔥 BASE URL GLOBAL — funciona no localhost e na produção
+const baseURL = window.location.hostname === 'localhost'
+    ? 'http://localhost:3000'
+    : 'https://angoia-backend.onrender.com';
+
 // Função que faz requisição ao backend para mensagem nova
 const callBackendAPI = async (message) => {
-    const baseURL = window.location.hostname === 'localhost'
-        ? 'http://localhost:3000'
-        : 'https://angoia-backend.onrender.com';
-
     try {
         const token = localStorage.getItem('token');
 
@@ -74,7 +76,7 @@ const Chat = () => {
     const [notiCount, setNotiCount] = useState(0);
     const [showNotificacoes, setShowNotificacoes] = useState(false);
     const [modalCalendar , setModalCalendar] = useState(false);
-//histico de mensagem
+    //histico de mensagem
     const scrollToMessage = (id) => {
         const element = document.getElementById(id);
         if (element) {
@@ -84,11 +86,7 @@ const Chat = () => {
         }
     };
 
-
-
-
     //fim do historico de mensagem
-
 
     const menuRef = useRef(null);
     const user = JSON.parse(localStorage.getItem("user"));
@@ -99,7 +97,6 @@ const Chat = () => {
         localStorage.removeItem("chatMessages");
         navigate("/");
     };
-
 
     const handleNavigation = (path) => {
         navigate(path);
@@ -213,10 +210,6 @@ const Chat = () => {
         const fetchMessagesById = async () => {
             if (!id) return;
 
-            const baseURL = window.location.hostname === 'localhost'
-                ? 'http://localhost:3000'
-                : 'https://angoia-backend.onrender.com';
-
             try {
                 const res = await fetch(`${baseURL}/api/chat-messages/all`, {
                     headers: {
@@ -248,7 +241,6 @@ const Chat = () => {
             }
         };
 
-
         fetchMessagesById();
     }, [id]);
 
@@ -270,7 +262,8 @@ const Chat = () => {
         const fetchContador = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:3000/api/conversations', {
+
+                const res = await axios.get(`${baseURL}/api/conversations`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -284,7 +277,7 @@ const Chat = () => {
 
                 setNotiCount(recentes.length);
             } catch (err) {
-                console.error('Erro ao contar notificações:', err);
+                console.error("Erro ao contar notificações:", err);
             }
         };
 
@@ -293,12 +286,7 @@ const Chat = () => {
         return () => clearInterval(interval);
     }, []);
 
-
-
-
-
-
-//Enviar mensagem por audio
+    //Enviar mensagem por audio
     const handleAudio = () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -326,8 +314,6 @@ const Chat = () => {
         }
     };
 
-
-
     const handleNotificacoesClick = () => {
         if (window.innerWidth < 768) {
             // Se for tela pequena (mobile)
@@ -339,7 +325,6 @@ const Chat = () => {
         }
     };
 
-
     if (fullScreen) {
         return (
             <div className="fixed top-0 left-0 w-full h-full bg-white p-4 overflow-y-auto z-50">
@@ -348,7 +333,7 @@ const Chat = () => {
                 <div className="flex flex-col justify-start items-start mt-5 space-y-4 text-lg font-semibold">
                     <ul className="w-full space-y-2 text-sm">
                         <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2"
-                        onClick={handleNewChat}
+                            onClick={handleNewChat}
                         >
                             <Plus size={14} className="text-gray-700" />
                             <span className="text-gray-800">Novo chat</span>
@@ -414,8 +399,6 @@ const Chat = () => {
     </span>
                     </footer>
                 </div>
-
-
             </div>
         );
     }
@@ -475,8 +458,6 @@ const Chat = () => {
                                     />
                                 )}
 
-
-
                                 <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
                                     <EyeOff size={14} className="text-gray-700" />
                                     <Link to="/pagina3" className="text-sm text-gray-800">Anônimo</Link>
@@ -485,8 +466,8 @@ const Chat = () => {
                                 <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 " onClick={handleplanos}>
                                     <CreditCard size={14} className="text-gray-700" />
                                     <span  className="text-sm text-gray-800">Planos</span>
-
                                 </li>
+
                                 <li
                                     className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2"
                                     onClick={() => setShowSchedule(true)}
@@ -495,12 +476,11 @@ const Chat = () => {
                                     <span className="text-sm text-gray-800">Agendar pergunta</span>
                                 </li>
                                 {showSchedule &&(
-                                <ModalScheudle
-                                    isOpen={showSchedule}
-                                    onClose={() => setShowSchedule(false)}
-                                />
+                                    <ModalScheudle
+                                        isOpen={showSchedule}
+                                        onClose={() => setShowSchedule(false)}
+                                    />
                                 )}
-
 
                                 <li
                                     onClick={() => {
@@ -523,11 +503,8 @@ const Chat = () => {
                                     <ModalNotificacoes onClose={() => setShowNotificacoes(false)} />
                                 )}
 
-
-
-
                                 <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 "
-                                onClick={()=>setShowFavoritos(true)}
+                                    onClick={()=>setShowFavoritos(true)}
                                 >
                                     <Star size={14} className="text-gray-700" />
                                     <span  className="text-sm text-gray-800">Favoritos</span>
@@ -545,32 +522,16 @@ const Chat = () => {
                                     />
                                 )}
 
-
-
-
-
-
-                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 "
-                                    //onClick={() => setModalCalendar(true)}
-
-                                >
+                                <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
                                     < CalendarDays size={14} className="text-gray-700" />
                                     <Link to={"/calendario"} className="text-sm text-gray-800">Calendário de sessões</Link>
                                 </li>
-                                {/*{modalCalendar &&
-                                    (
-                                        <SessionCalendar
-                                        onClose={() => setModalCalendar(false)}
-                                        />
-                                    )}*/}
+
                                 <li className="hover:bg-gray-100 px-3 py-2 border rounded cursor-pointer flex items-center space-x-2 ">
                                     <GraduationCap size={14} className="text-gray-700" />
                                     <Link to="/modoestudo" className="text-sm text-gray-800">Modo Estudo</Link>
                                 </li>
-
-
                             </ul>
-
 
                             <footer className="w-full text-center mt-[100px]">
   <span className="text-xs text-gray-400">
@@ -609,17 +570,17 @@ const Chat = () => {
                             </div>
                             {msg.sender === 'bot' && msg._id && (
                                 <div className="mt-4">
-                                <LikeDislikeButtons
+                                    <LikeDislikeButtons
 
-                                    messageId={msg._id}
-                                    initialLikes={msg.likes}
-                                    initialDislikes={msg.dislikes}
-                                    initialFavorites={msg.favorites} // ← ADICIONEI O FAVORITO
-                                    isFromVisitor={!user}
-                                    text={msg.text}
+                                        messageId={msg._id}
+                                        initialLikes={msg.likes}
+                                        initialDislikes={msg.dislikes}
+                                        initialFavorites={msg.favorites} // ← ADICIONEI O FAVORITO
+                                        isFromVisitor={!user}
+                                        text={msg.text}
 
-                                />
-                                    </div>
+                                    />
+                                </div>
 
                             )}
                         </div>
@@ -679,8 +640,8 @@ const Chat = () => {
     );
 };
 
-
 export default Chat;
+
 
 
 
