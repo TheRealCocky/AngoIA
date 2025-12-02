@@ -75,6 +75,10 @@ const handleChat = async (req, res) => {
         visitantes.set(ip, count + 1);
     }
 
+    // Declarar variáveis antes para evitar ReferenceError
+    let novaConversa = null;
+    let botMessage = null;
+
     try {
         let historico = [];
 
@@ -85,34 +89,19 @@ const handleChat = async (req, res) => {
         }
 
         const prompt = construirPrompt(message, historico);
-        let resposta;
+
+        // Chamada à IA com fallback robusto
+        let resposta = '';
         try {
             resposta = await getGeminiResponse(prompt);
+            if (!resposta || typeof resposta !== 'string') {
+                resposta = "😔 Não consegui gerar uma resposta no momento.";
+            }
+            console.log('Resposta da IA:', resposta);
         } catch (error) {
             console.error('Erro ao chamar a API Gemini:', error.message);
-            return res.status(503).json({
-                resposta: '😔 O sistema está sobrecarregado no momento. Tenta novamente dentro de alguns minutos.',
-                _id: null,
-                likes: [],
-                dislikes: []
-            });
+            resposta = "😔 O sistema está sobrecarregado no momento. Tenta novamente dentro de alguns minutos.";
         }
-
-// Verifica se a resposta está vazia ou nula
-        if (!resposta || typeof resposta !== 'string') {
-            return res.status(200).json({
-                resposta,
-                _id: novaConversa?._id || botMessage._id,
-                likes: novaConversa?.likes || [],
-                dislikes: novaConversa?.dislikes || [],
-                favorites: novaConversa?.favorites || []
-            });
-
-        }
-
-
-        const isCurta = message.trim().split(/\s+/).length <= 3;
-        const respostaRuim = !resposta || resposta.includes('Erro') || resposta.includes('não consegui');
 
         // Se usuário não estiver logado, apenas retorna a resposta
         if (!req.user) {
@@ -124,22 +113,21 @@ const handleChat = async (req, res) => {
             });
         }
 
-        // Armazenar apenas se for usuário autenticado
+        // Armazenar mensagens no banco
         const userMessage = await ChatMessage.create({
             sender: 'user',
             user: req.user._id,
             text: message
         });
 
-        const botMessage = await ChatMessage.create({
+        botMessage = await ChatMessage.create({
             sender: 'bot',
             text: resposta,
-            replyTo: userMessage._id  // 👈 ESTE CAMPO É ESSENCIAL
+            replyTo: userMessage._id
         });
 
-
-
-
+        const isCurta = message.trim().split(/\s+/).length <= 3;
+        const respostaRuim = !resposta || resposta.includes('Erro') || resposta.includes('não consegui');
 
         const limite = new Date(Date.now() - 3 * 86400000);
         const jaExiste = await Conversation.findOne({
@@ -156,8 +144,6 @@ const handleChat = async (req, res) => {
         });
 
         const atingiuLimite = countHoje >= 20;
-
-        let novaConversa = null;
 
         if (!isCurta && !respostaRuim && !jaExiste && !atingiuLimite && shouldStoreMessage(message, resposta)) {
             novaConversa = await Conversation.create({
@@ -189,8 +175,9 @@ const handleChat = async (req, res) => {
     }
 };
 
+module.exports = { handleChat, gerarTags };
 
-module.exports = { handleChat ,gerarTags};
+
 
 
 

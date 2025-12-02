@@ -21,14 +21,21 @@ const getGeminiResponse = async (message) => {
                 ],
             },
             {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                timeout: 10000, // ⏱️ tempo limite (10s)
+                headers: { "Content-Type": "application/json" },
+                timeout: 15000, // 15s
             }
         );
 
-        const texto = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        // Log detalhado para debug
+        console.log("✅ Resposta bruta da Gemini:", JSON.stringify(response.data, null, 2));
+
+        // Procura no caminho original, se não existir, tenta outros caminhos possíveis
+        let texto = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (!texto) {
+            // fallback alternativo
+            texto = response.data?.output_text || "";
+        }
 
         return texto?.trim() || "Sem resposta disponível no momento.";
     } catch (err) {
@@ -38,6 +45,7 @@ const getGeminiResponse = async (message) => {
 };
 
 module.exports = { getGeminiResponse };
+
 
 
 
