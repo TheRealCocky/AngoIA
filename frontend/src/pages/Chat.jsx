@@ -4,7 +4,7 @@ import { LuSendHorizontal } from "react-icons/lu";
 import axios from 'axios';
 import { Mic, AppWindow, X, BellRing, Bell, Settings, House, Plus, History, Star, CalendarClock, GraduationCap, CreditCard, EyeOff, CalendarDays } from 'lucide-react';
 import { Link, useNavigate, useParams } from "react-router-dom"; // comunicação com a url
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import SettingsModalLg from "../components/SettingsModalLG.jsx";
 import SettingsModalSm from "../components/SettingsModalSm.jsx";
 import LikeDislikeButtons from "../components/LikeDislikeButtons";
