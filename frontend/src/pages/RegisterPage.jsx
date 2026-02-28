@@ -15,7 +15,7 @@ export default function Cadastro() {
 
 const baseURL= window.location.hostname==='localhost'
   ?'http://localhost:3000'
-  :'https://angoia-backend.onrender.com';
+  :'https://angoia-backend-5ic1.onrender.com';
 
 
   const handleCadastro = async (e) => {

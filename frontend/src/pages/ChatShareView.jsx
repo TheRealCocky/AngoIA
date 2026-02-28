@@ -13,7 +13,7 @@ const ChatShareView = () => {
 
             const baseURL = window.location.hostname === 'localhost'
                 ? 'http://localhost:3000'
-                : 'https://angoia-backend.onrender.com';
+                : 'https://angoia-backend-5ic1.onrender.com';
 
             try {
                 const response = await fetch(`${baseURL}/api/chat-messages/${id}`);

@@ -12,7 +12,7 @@ export default function Login() {
 
   const baseURL= window.location.hostname==='localhost'
       ? 'http://localhost:3000'
-      : 'https://angoia-backend.onrender.com';
+      : 'https://angoia-backend-5ic1.onrender.com';
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoadingg(true);
